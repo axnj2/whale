@@ -25,7 +25,7 @@ t = linspace(0, Tp, length(x_recorded));
 %plot(t, x_recorded');
 
 fft_results = fft(x_recorded);
-centered_fft_results = fftshift(fft_results);
+centered_fft_results = fftshift(fft_results); 
 
 figure;
 plot(Fs/samples_recorded*(-samples_recorded/2:samples_recorded/2-1), abs(centered_fft_results));
