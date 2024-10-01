@@ -61,3 +61,9 @@ principe de superposition et bon ?
 avec les fréquences assez espacées que pour ne pas se chevaucher en fréquenciel.
 
 à creuser sur la partie du cours sur les signaux périodiques.
+
+
+## partie 3
+
+Déterminer le paramètre d'écart $T$, mesurer l'étalement fréquentiel d'une sinusoide pour avoir
+ un écart suppérieur à cet étalement.
