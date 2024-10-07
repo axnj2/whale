@@ -1,26 +1,41 @@
 clc; clear all; close all hidden;
 
 fp = 8000; %Hz
-Tp = 3; %s
 Fs = 48000; % samples per second [Hz]
-samples = Fs*Tp;
+samples = 1024;
+Tf = samples/Fs; %s
 T = 1/Fs;
 
-t = linspace(0, Tp, samples);
-x = cos(2*pi*fp*t);
+function x = g(t, fp, Tp)
+    x=0;
+    if t < Tp
+        x = sin(2*pi*fp*t);
+    end
+end
+
+% avec les param de l'énoncé
+t = linspace(0, Tf, samples);
+x = zeros(size(t));
+for k = 1:length(t)
+    x(k) = g(t(k), fp, 0.01);
+end
+
+% fft avant de l'émettre et enregistrer
+figure;
+plot(Fs/samples*(-samples/2:samples/2-1), abs(fftshift(fft(x))))
 
 player = audioplayer(x, Fs);
 play(player);
 
 recorder = audiorecorder(Fs, 16, 1);
-record(recorder, Tp);
+record(recorder, Tf);
 
-pause(Tp);
+pause(Tf+1);
 
 x_recorded = [getaudiodata(recorder)];
 samples_recorded = length(x_recorded);
 
-t = linspace(0, Tp, length(x_recorded));
+t = linspace(0, Tf, length(x_recorded));
 
 %plot(t, x_recorded');
 
@@ -30,3 +45,14 @@ centered_fft_results = fftshift(fft_results);
 figure;
 plot(Fs/samples_recorded*(-samples_recorded/2:samples_recorded/2-1), abs(centered_fft_results));
 
+
+
+% avec un signal plus court
+t = linspace(0, Tf, samples);
+x = zeros(size(t));
+for k = 1:length(t)
+    x(k) = g(t(k), fp, 0.001);
+end
+
+figure;
+plot(Fs/samples*(-samples/2:samples/2-1), abs(fftshift(fft(x))))
