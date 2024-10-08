@@ -24,7 +24,8 @@ end
 figure;
 plot(Fs/samples*(-samples/2:samples/2-1), abs(fftshift(fft(x))))
 
-player = audioplayer(x, Fs);
+
+player = audioplayer(repmat(x, 1, 50), Fs);
 play(player);
 
 recorder = audiorecorder(Fs, 16, 1);
@@ -34,8 +35,6 @@ pause(Tf+1);
 
 x_recorded = [getaudiodata(recorder)];
 samples_recorded = length(x_recorded);
-
-t = linspace(0, Tf, length(x_recorded));
 
 %plot(t, x_recorded');
 
