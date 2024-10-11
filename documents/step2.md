@@ -97,7 +97,52 @@ $$
 = \int _{0}^{T} \frac{1}{2} dt = \frac{T}{2}
 $$
 donc $Y(f_{0})=\frac{T}{2}H(f_{0})$ *+ ajouter le déphasage*
-## partie 3
+## partie 2
 
-Déterminer le paramètre d'écart $T$, mesurer l'étalement fréquentiel d'une sinusoide pour avoir
- un écart suppérieur à cet étalement.
+Déterminer le paramètre d'écart $T$, mesurer l'étalement fréquentiel d'une sinusoide pour avoir un écart suppérieur à cet étalement.
+
+faire une mesure à vide du bruit spectre de bruit ambiant.
+-> choisir une plage de fréquence peu affectée, => au dessus de 2000.
+
+Notre signal est une fenêtre rect multipliée par un sinus -> FT est un sync -> calculer et mesurer 
+l'étalement de celui-ci. (à voir parce que les math au dessus semblent dire qu'il ne devrait pas avoir d'interférences ??)
+choisir l'espacement en fonction de l'étalement en fréquence
+
+pour $T$ assez court pour que la mesure soit rapide. Mais plus il est court moins on peut être précis au niveau de l'écart entre les fréquences.
+
+$$
+f_k = \frac{n_0+n_1\cdot k}{T}
+$$
+où : 
+- $n_0$ donne la fréquence min
+- $n_1$ détermine l'espacement entre les fréquences succesives
+
+
+bonus : si c'est peu audible c'est cool
+
+## partie 3
+$$
+\begin{align}
+|H(f)|& = \sqrt{ Re[ H(f) ]^{2} +Im[H(f)]^{2} } \\
+&= \sqrt{ \begin{gather}
+(\alpha_{d}\cos(2\pi f\tau_{d}) + \alpha_{r}\cos(2\pi f\tau_{r})) ^{2} \\+ (\alpha_{d}\sin(2\pi f\tau_{d}) + \alpha_{r}\sin(2\pi f\tau_{r})) ^{2}
+\end{gather}} \\
+&=\sqrt{ \begin{align}
+\alpha_{d}^{2}+\alpha_{r}^{2} + 2\alpha_{d}\alpha_{r}[&\cos(2\pi f\tau_{d})\cos(2\pi f\tau_{r}) \\
+&+\sin(2\pi f\tau_{d})\sin(2\pi f\tau_{r})]
+\end{align} } \\
+&= \sqrt{ \alpha_{d}^{2}+\alpha_{r}^{2} + 2\alpha_{d}\alpha_{r}\cos(2\pi f(\tau_{r}-\tau_{d})) }
+\end{align}
+$$
++illustrer le résultat. 
+paramètres raisonnables : 
+$$
+\tau_{r} = 2\cdot \frac{d_{m}}{v}, \quad \tau_{d} = \frac{d_{d}}{v}
+$$
+où $d_{m}$ est la distance mesurée et $d_{d}$ est la distance directe ($\approx 15cm$) et $v \approx 340m/s$ 
+prenons $d_{m}=2m$, $\alpha_{d} \approx 0.5$ and $\alpha_{r} \approx 0.1$
+
+voir `frequencyResponseModel.m`
+
+## Partie 4
+
