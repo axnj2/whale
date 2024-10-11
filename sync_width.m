@@ -15,5 +15,7 @@ plot(t, signalNormalPhase);
 figure;
 plot(t, signalRandomPhase);
 
-figure
+figure;
 plot(Fs/(Fs*T)*(-Fs*T/2:Fs*T/2-1), abs(fftshift(fft(signalNormalPhase))));
+figure
+plot(Fs/(Fs*T)*(-Fs*T/2:Fs*T/2-1), abs(fftshift(fft(signalRandomPhase))));

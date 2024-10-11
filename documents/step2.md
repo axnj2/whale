@@ -102,11 +102,11 @@ donc $Y(f_{0})=\frac{T}{2}H(f_{0})$ *+ ajouter le déphasage*
 Déterminer le paramètre d'écart $T$, mesurer l'étalement fréquentiel d'une sinusoide pour avoir un écart suppérieur à cet étalement.
 
 faire une mesure à vide du bruit spectre de bruit ambiant.
--> choisir une plage de fréquence peu affectée, => au dessus de 2000.
+-> choisir une plage de fréquence peu affectée, => au dessus de 2000. 
 
-Notre signal est une fenêtre rect multipliée par un sinus -> FT est un sync -> calculer et mesurer 
+Notre signal est une fenêtre rect multipliée par un sinus -> FT est un sync -> calculer et mesurer. (voir `sync_width.m`) On peut voir que l'étalement est pratiquement null.
 l'étalement de celui-ci. (à voir parce que les math au dessus semblent dire qu'il ne devrait pas avoir d'interférences ??)
-choisir l'espacement en fonction de l'étalement en fréquence
+choisir l'espacement en fonction de l'étalement en fréquence (plus limité par micro/hautparleur qui sature)
 
 pour $T$ assez court pour que la mesure soit rapide. Mais plus il est court moins on peut être précis au niveau de l'écart entre les fréquences.
 
@@ -145,4 +145,14 @@ prenons $d_{m}=2m$, $\alpha_{d} \approx 0.5$ and $\alpha_{r} \approx 0.1$
 voir `frequencyResponseModel.m`
 
 ## Partie 4
+
+voir `step2.m` pour la vérification exprérimentale
+
+On l'a fait à la BST au bord d'une table avec un tableau blanc à $\pm 0.5m$ de distance. (d'autres réflecteurs se trouvaient à moins de $1m50$)
+
+ça n'as pas été extrêmement conclusif (mais on a appris qu'il fallait normaliser le signal.)
+
+à $2000Hz$ jusqu'à $2600$ avec une fréquence toutes les $50Hz$ on a observé une sinusoïde de période +- 300 ce qui correspond à la simulation pour ce genre de distances. (on a pas réussi à reproduire à d'autres fréquences et mettre plus de fréquence en même temps atteingnait  les limites du hardware => faire le truc de phase aléatoire.)
+
+avec phase aléatoires : résultat très probant => voir figure `CanalResponse50cmRandomPhase-AntMac-f0=0-n1=5-kmax=4000.fig`
 
