@@ -1,0 +1,1 @@
+TODO : comparaison avec et sans la phase random
