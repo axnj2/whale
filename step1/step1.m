@@ -1,6 +1,6 @@
 clc; clear all; close all hidden;
 
-fp = 8000; %Hz
+fp = 2000; %Hz
 Fs = 48000; % samples per second [Hz]
 samples = 1024;
 Tf = samples/Fs; %s
@@ -28,7 +28,7 @@ plot(Fs/samples*(-samples/2:samples/2-1), abs(fftshift(fft(x))))
 player = audioplayer(repmat(x, 1, 50), Fs);
 play(player);
 
-recorder = audiorecorder(Fs, 16, 1);
+recorder = audiorecorder(Fs, 24, 1);
 record(recorder, Tf);
 
 pause(Tf+1);

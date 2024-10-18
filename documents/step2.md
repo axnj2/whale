@@ -54,6 +54,9 @@ $$
 \exp(-j\phi)Y(f) = \frac{T}{2}H(f)\exp(-j\phi)
 $$
 
+feedback : vachement compliqué.
+on peut utiliser la réponse à une exponentielle complexe.
+Donc comme cos est une somme d'exp.
 
 ## Extension de la démo à n fréquences
 ![](./images/multi-frequencies-in-channel.png)
@@ -97,6 +100,8 @@ $$
 = \int _{0}^{T} \frac{1}{2} dt = \frac{T}{2}
 $$
 donc $Y(f_{0})=\frac{T}{2}H(f_{0})$ *+ ajouter le déphasage*
+
+attention généraliser à n fréquences
 ## partie 2
 
 Déterminer le paramètre d'écart $T$, mesurer l'étalement fréquentiel d'une sinusoide pour avoir un écart suppérieur à cet étalement.
@@ -107,6 +112,7 @@ faire une mesure à vide du bruit spectre de bruit ambiant.
 Notre signal est une fenêtre rect multipliée par un sinus -> FT est un sync -> calculer et mesurer. (voir `sync_width.m`) On peut voir que l'étalement est pratiquement null.
 l'étalement de celui-ci. (à voir parce que les math au dessus semblent dire qu'il ne devrait pas avoir d'interférences ??)
 choisir l'espacement en fonction de l'étalement en fréquence (plus limité par micro/hautparleur qui sature)
+Correction : uniquement qu'il faut que ça soit un multiple de 1/T
 
 pour $T$ assez court pour que la mesure soit rapide. Mais plus il est court moins on peut être précis au niveau de l'écart entre les fréquences.
 

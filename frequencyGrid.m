@@ -1,4 +1,4 @@
-function [t, signal, fk, n0] = frequencyGrid(Fs, T, f0, n1, kmax, randomPhase)
+function [t, signal, fk, n0, phase] = frequencyGrid(Fs, T, f0, n1, kmax, randomPhase)
     arguments
         Fs double
         T double
@@ -12,10 +12,11 @@ function [t, signal, fk, n0] = frequencyGrid(Fs, T, f0, n1, kmax, randomPhase)
     n0 = ceil(f0*T);
     
     fk = @(k)  (n0 + k*n1)/T;
-    
+
+
     if randomPhase
         % random phase (+1 or -1)
-        phase = 2*randi([0,1], 1, kmax+1) - 1;
+        phase = 2*randi([0,1], 1, kmax) - 1;
     else
         phase = ones(1, kmax+1);
     end
@@ -24,7 +25,7 @@ function [t, signal, fk, n0] = frequencyGrid(Fs, T, f0, n1, kmax, randomPhase)
     t = 0:1/Fs:T;
     t = t(1:end-1);
     signal = zeros(1,Fs*T);
-    for k = 0:kmax
+    for k = 0:kmax-1
         signal = signal + sin(2*pi*fk(k)*t)*phase(k+1);
     end
 
