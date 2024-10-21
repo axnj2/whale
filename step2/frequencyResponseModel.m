@@ -2,7 +2,7 @@ clc; clear all; close all hidden;
 
 alpha_r = 0.4;
 alpha_d = 0.5;
-d_m = 0.5; %m
+d_m = 0.15; %m
 d_d = 0.05; %m
 v = 340; %m/s
 

@@ -31,7 +31,7 @@ end
 
 signal = signal/max(abs(signal));
 
-pause(3)
+pause(3) % pour avoir le temps de s'éloinger le l'ordinateur pour ne pas perturber la mesure
 
 player = audioplayer(repmat(signal, 1, 10), Fs, 24, 1); % 1 is the ID of the macbook speaker
 play(player);
@@ -39,7 +39,7 @@ play(player);
 recorder = audiorecorder(Fs, 24, 1, 0); % 0 is the ID of the macbook microphone
 record(recorder, T);
 
-pause(T+1);
+pause(T+1); % pour être sûr que la mesure est finie
 
 x_recorded = [getaudiodata(recorder)];
 
@@ -57,4 +57,7 @@ plot(Fs/Q*(-Q:(Q)-1), abs(fftshift(fft_results)));
 reponse_impulsionnelle = ifft(fft_results);
 figure;
 plot(t, reponse_impulsionnelle);
+
+
+% feedback : on peut aussi le faire en simulation pour valider que le code fonctionne correctement.
 
