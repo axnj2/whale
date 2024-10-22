@@ -11,37 +11,31 @@ T = 1/(2*delta_f);
 
 message = 'hello sound communication';
 % transform the message into decimal
-binary_message = dec2bin(message, 8);
-size(binary_message)
-% transform the binary message into a vector appending all the bits
-binary_message_vector = reshape(binary_message', 1, []);
+message_decimal = int8(message);
 
 
-function [t, signal] = fsk_gen_1_period(f0, detla_f, M, T, Fs, binary_chars)
+function [t, signal] = fsk_gen_1_period(f0, detla_f, M, T, Fs, number)
     arguments
         f0 double
         detla_f double
         M double
         T double
         Fs double
-        binary_chars (1, 16) char
+        number int8
     end
 
     % generate the time vector
     t = 0:1/Fs:T;
     % generate the signal
     signal = zeros(1, length(t));
-    for m = 0:M-1
-        if binary_chars(m+1) == '1'
-            signal = signal + cos(2*pi*(f0 + m*detla_f)*t);
-        end
-    end
+    % transform binart chars into int using bin2dec
+    signal = signal + cos(2*pi*(f0 + double(number)*detla_f)*t);
 
     % normalize the signal
     signal = signal/max(abs(signal));
 end
-
-[t, signal] = fsk_gen_1_period(f0, delta_f, M, T, Fs, binary_message_vector(1:16));
+% with 16 possibles values we can store 4 bits
+[t, signal] = fsk_gen_1_period(f0, delta_f, M, T, Fs, mod(message_decimal(1), 16));
 
 plot(t, signal);
 xlabel('Time [s]');
