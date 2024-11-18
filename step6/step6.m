@@ -23,78 +23,103 @@ function [ht] = h(Fs)
     ht = alpha_r*rectangularPulse((t - tau_r - delay)*Fs ) + alpha_d*rectangularPulse((t - tau_d - delay )*Fs);
 end
 
-% show h(t)
-
+% Paramètres
+SNR = 100; % signal to noise ratio [dB]
+bias = 1;
 % grille de fréquences
 % on choisit le temps d'enregistrement par rapport au nombre de fréquences échantillonées
-
-% Paramètres
 Fs = 48000; % fréquence d'échantillonnage
 Q = 4096; % nombre de fréquences échantillonées
-SNR = 1; % signal to noise ratio [dB]
 
 
 
-% espacement entre les fréquences : 
-freq_spacing = Fs/(2*Q); % précédemment n1
-k = 0:Q-1; % indices des fréquences
+function [reponse_impulsionnelle_simu, t] = simu_canal_OFDM_radar(Fs, Q, SNR)
+    % espacement entre les fréquences : 
+    freq_spacing = Fs/(2*Q); % précédemment n1
+    k = 0:Q-1; % indices des fréquences
 
-% fréquency vector
-f = k*freq_spacing; % fréquences
+    % fréquency vector
+    f = k*freq_spacing; % fréquences
 
-% random phase
-phase = 2*randi([0,1], 1, Q) - 1;
+    % random phase
+    phase = 2*randi([0,1], 1, Q) - 1;
 
-% max time
-T = 1/freq_spacing;  % freq_spacing = 1/T
+    % max time
+    T = 1/freq_spacing;  % freq_spacing = 1/T
 
-% time vector
-t = 0:1/Fs:T-1/Fs;
-signal = zeros(1, 2*Q);
-for i = 1:Q
-    signal = signal + cos(2*pi*f(i)*t - pi/4)*phase(i);
+    % time vector
+    t = 0:1/Fs:T-1/Fs;
+    signal = zeros(1, 2*Q);
+    for i = 1:Q
+        signal = signal + cos(2*pi*f(i)*t - pi/4)*phase(i);
+    end
+    %normalize signal
+    signal = signal/max(abs(signal));
+    P_signal = sum(signal.^2)/length(signal);
+
+    % add noize
+    % SNR = 20 log_10(P_signal/P_noise) => P_noise = P_signal/10^(SNR/20)
+
+    signal = signal + sqrt(P_signal/(10^(SNR/20)))*randn(1, 2*Q); % add a gaussian noise of mean 0 and standard deviation sqrt(P_signal/(10^(SNR/20)))
+    %P_signal
+    %sqrt(P_signal/(10^(SNR/20)))
+
+    signal = signal/max(abs(signal));
+
+
+    % convolute signal with h(t)
+    signal_conv_simu = conv(transpose(signal), h(Fs), 'same');
+
+    % fft of the convoluted signal
+    fft_signal_conv_simu = fft(signal_conv_simu);
+
+    % compensation de la phase
+    fft_signal_conv_phase_comp_simu = [fft_signal_conv_simu(1:Q).*phase'; fft_signal_conv_simu(Q+1:2*Q).*phase(end:-1:1)'];
+
+    reponse_impulsionnelle_simu = ifft(fft_signal_conv_phase_comp_simu);
 end
-%normalize signal
-signal = signal/max(abs(signal));
-P_signal = sum(signal.^2)/length(signal);
 
-% add noize
-% SNR = 20 log_10(P_signal/P_noise) => P_noise = P_signal/10^(SNR/20)
+function [hits_indices] = detect_hits(reponse_impulsionnelle_simu, numRefCells, numGapCells, bias)
+    [hits, ~] = CFAR(abs(reponse_impulsionnelle_simu), numRefCells, numGapCells, bias);
+    hits_indices = find(hits);
 
-signal = signal + sqrt(P_signal/(10^(SNR/20)))*randn(1, 2*Q); % add a gaussian noise of mean 0 and standard deviation sqrt(P_signal/(10^(SNR/20)))
-%P_signal
-%sqrt(P_signal/(10^(SNR/20)))
+    % remove consecutive hits
+    keep_indices = ones(size(hits_indices), "logical");
+    for k = 1:length(hits_indices)
+        if find(hits_indices(k)+1==hits_indices)
+            keep_indices(k) = false;
+        elseif find(hits_indices(k)+2==hits_indices)
+            keep_indices(k) = false;
+        end 
+    end
+    hits_indices = hits_indices(keep_indices);
 
-signal = signal/max(abs(signal));
+end
+
+% real hits
+real_hits_indices = [284, 7918, 7920];
 
 
-% show h(t)
-%figure
-%plot(h(Fs));
+sum_false_alarms = 0;
+for i = 1:1000
+    [reponse_impulsionnelle_simu, t] = simu_canal_OFDM_radar(Fs, Q, SNR);
+    [hits_indices] = detect_hits(reponse_impulsionnelle_simu, 25, 5, bias);
 
-% convolute signal with h(t)
-signal_conv_simu = conv(transpose(signal), h(Fs), 'same');
-%figure
-%plot(t, signal_conv_simu);
+    acc_detect = find(hits_indices==real_hits_indices(1) | hits_indices==real_hits_indices(2) | hits_indices==real_hits_indices(3));
+    num_acc_detect = length(acc_detect);
+    number_missed_dectect = 2-num_acc_detect;
 
-% fft of the convoluted signal
-fft_signal_conv_simu = fft(signal_conv_simu);
-%figure
-%plot(Fs/Q*(0:(Q)-1), abs(fftshift(fft_signal_conv_simu(1:Q))));
+    false_alarms = hits_indices(not(hits_indices==real_hits_indices(1) | hits_indices==real_hits_indices(2)| hits_indices==real_hits_indices(3)));
+    num_false_alarms = length(false_alarms);
+    sum_false_alarms = sum_false_alarms + num_false_alarms;
+end
 
-% compensation de la phase
-fft_signal_conv_phase_comp_simu = [fft_signal_conv_simu(1:Q).*phase'; fft_signal_conv_simu(Q+1:2*Q).*phase(end:-1:1)'];
+sum_false_alarms
 
-reponse_impulsionnelle_simu = ifft(fft_signal_conv_phase_comp_simu);
-%figure;
-%plot(t, reponse_impulsionnelle_simu);
-
-[hits, threshold] = CFAR(abs(reponse_impulsionnelle_simu), 25, 5, 1);
-
+%{
+% plot
 figure
 plot(t, abs(reponse_impulsionnelle_simu), t, threshold)
 hold on
 scatter(t, hits, "filled", "red")
-
-hit_indices = find(hits);
-hit_times = t(hit_indices)
+%}
