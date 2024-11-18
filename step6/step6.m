@@ -31,7 +31,7 @@ end
 % Paramètres
 Fs = 48000; % fréquence d'échantillonnage
 Q = 4096; % nombre de fréquences échantillonées
-SNR = -38; % signal to noise ratio [dB]
+SNR = 1; % signal to noise ratio [dB]
 
 
 
@@ -62,36 +62,39 @@ P_signal = sum(signal.^2)/length(signal);
 % SNR = 20 log_10(P_signal/P_noise) => P_noise = P_signal/10^(SNR/20)
 
 signal = signal + sqrt(P_signal/(10^(SNR/20)))*randn(1, 2*Q); % add a gaussian noise of mean 0 and standard deviation sqrt(P_signal/(10^(SNR/20)))
-P_signal
-sqrt(P_signal/(10^(SNR/20)))
+%P_signal
+%sqrt(P_signal/(10^(SNR/20)))
 
 signal = signal/max(abs(signal));
 
 
 % show h(t)
-figure
-plot(h(Fs));
+%figure
+%plot(h(Fs));
 
 % convolute signal with h(t)
 signal_conv_simu = conv(transpose(signal), h(Fs), 'same');
-figure
-plot(t, signal_conv_simu);
+%figure
+%plot(t, signal_conv_simu);
 
 % fft of the convoluted signal
 fft_signal_conv_simu = fft(signal_conv_simu);
-figure
-plot(Fs/Q*(0:(Q)-1), abs(fftshift(fft_signal_conv_simu(1:Q))));
+%figure
+%plot(Fs/Q*(0:(Q)-1), abs(fftshift(fft_signal_conv_simu(1:Q))));
 
 % compensation de la phase
 fft_signal_conv_phase_comp_simu = [fft_signal_conv_simu(1:Q).*phase'; fft_signal_conv_simu(Q+1:2*Q).*phase(end:-1:1)'];
 
 reponse_impulsionnelle_simu = ifft(fft_signal_conv_phase_comp_simu);
-figure;
-plot(t, reponse_impulsionnelle_simu);
+%figure;
+%plot(t, reponse_impulsionnelle_simu);
 
-[hits, threshold] = CFAR(abs(reponse_impulsionnelle_simu), 10, 2, 0.4);
+[hits, threshold] = CFAR(abs(reponse_impulsionnelle_simu), 25, 5, 1);
 
 figure
 plot(t, abs(reponse_impulsionnelle_simu), t, threshold)
 hold on
-scatter(t, hits*2, "filled", "red")
+scatter(t, hits, "filled", "red")
+
+hit_indices = find(hits);
+hit_times = t(hit_indices)

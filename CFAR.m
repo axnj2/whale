@@ -14,7 +14,6 @@ function [hits, output_treshold] = CFAR(inputSignal, numRefCells, numGapCells, b
     end
 
     output_treshold = bias + arrayfun(@CUTThres, (numGapCells+numRefCells+1:length(inputSignal)-numGapCells-numRefCells));
-    size(output_treshold)
     
     function hit = IsHit(treshold_index)
         hit = 0;
