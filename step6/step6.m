@@ -24,8 +24,8 @@ function [ht] = h(Fs)
 end
 
 % Paramètres
-SNR = 100; % signal to noise ratio [dB]
-bias = 1;
+SNR = -20; % signal to noise ratio [dB]
+bias = 0.5;
 % grille de fréquences
 % on choisit le temps d'enregistrement par rapport au nombre de fréquences échantillonées
 Fs = 48000; % fréquence d'échantillonnage
@@ -69,14 +69,15 @@ function [reponse_impulsionnelle_simu, t] = simu_canal_OFDM_radar(Fs, Q, SNR)
 
     % convolute signal with h(t)
     signal_conv_simu = conv(transpose(signal), h(Fs), 'same');
-
+    
     % fft of the convoluted signal
     fft_signal_conv_simu = fft(signal_conv_simu);
 
     % compensation de la phase
     fft_signal_conv_phase_comp_simu = [fft_signal_conv_simu(1:Q).*phase'; fft_signal_conv_simu(Q+1:2*Q).*phase(end:-1:1)'];
-
+    
     reponse_impulsionnelle_simu = ifft(fft_signal_conv_phase_comp_simu);
+    
 end
 
 function [hits_indices] = detect_hits(reponse_impulsionnelle_simu, numRefCells, numGapCells, bias)
@@ -101,20 +102,25 @@ real_hits_indices = [284, 7918, 7920];
 
 
 sum_false_alarms = 0;
-for i = 1:1000
-    [reponse_impulsionnelle_simu, t] = simu_canal_OFDM_radar(Fs, Q, SNR);
-    [hits_indices] = detect_hits(reponse_impulsionnelle_simu, 25, 5, bias);
+sum_missed_dectections = 0;
 
+for i = 1:16
+    [reponse_impulsionnelle_simu, t] = simu_canal_OFDM_radar(Fs, Q, SNR);
+
+    [hits_indices] = detect_hits(reponse_impulsionnelle_simu, 25, 5, bias);
+ 
     acc_detect = find(hits_indices==real_hits_indices(1) | hits_indices==real_hits_indices(2) | hits_indices==real_hits_indices(3));
     num_acc_detect = length(acc_detect);
-    number_missed_dectect = 2-num_acc_detect;
+    number_missed_detect = 2-num_acc_detect;
 
     false_alarms = hits_indices(not(hits_indices==real_hits_indices(1) | hits_indices==real_hits_indices(2)| hits_indices==real_hits_indices(3)));
     num_false_alarms = length(false_alarms);
     sum_false_alarms = sum_false_alarms + num_false_alarms;
+    sum_missed_dectections = sum_missed_dectections + number_missed_detect;
 end
 
 sum_false_alarms
+sum_missed_dectections
 
 %{
 % plot
