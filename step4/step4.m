@@ -15,6 +15,7 @@ message_decimal = int8(message);
 
 
 function [t, signal] = fsk_gen_1_period(f0, detla_f, M, T, Fs, number)
+    % idée d'amélioration : utiliser un code gray pour pouvoir corriger les erreurs plus facilement
     arguments
         f0 double
         detla_f double
@@ -53,7 +54,7 @@ function [decoded_message] = fsk_decode(signal, f0, delta_f, M, T, Fs)
         Fs double
     end
 
-    
+
 
 end
 
