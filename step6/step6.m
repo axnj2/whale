@@ -31,6 +31,8 @@ end
 % Paramètres
 Fs = 48000; % fréquence d'échantillonnage
 Q = 4096; % nombre de fréquences échantillonées
+SNR = -38; % signal to noise ratio [dB]
+
 
 
 % espacement entre les fréquences : 
@@ -52,6 +54,16 @@ signal = zeros(1, 2*Q);
 for i = 1:Q
     signal = signal + cos(2*pi*f(i)*t - pi/4)*phase(i);
 end
+%normalize signal
+signal = signal/max(abs(signal));
+P_signal = sum(signal.^2)/length(signal);
+
+% add noize
+% SNR = 20 log_10(P_signal/P_noise) => P_noise = P_signal/10^(SNR/20)
+
+signal = signal + sqrt(P_signal/(10^(SNR/20)))*randn(1, 2*Q); % add a gaussian noise of mean 0 and standard deviation sqrt(P_signal/(10^(SNR/20)))
+P_signal
+sqrt(P_signal/(10^(SNR/20)))
 
 signal = signal/max(abs(signal));
 
@@ -75,13 +87,11 @@ fft_signal_conv_phase_comp_simu = [fft_signal_conv_simu(1:Q).*phase'; fft_signal
 
 reponse_impulsionnelle_simu = ifft(fft_signal_conv_phase_comp_simu);
 figure;
-reponse_impulsionnelle_simu_repeted = realrepmat(reponse_impulsionnelle_simu, 1, 2);
-plot(t, reponse_impulsionnelle_simu_repeted(length(t)/2:3*length(t)/2-1));
+plot(t, reponse_impulsionnelle_simu);
 
-
-[hits, threshold] = CFAR(abs(reponse_impulsionnelle_simu_repeted), 10, 2, 2.5);
+[hits, threshold] = CFAR(abs(reponse_impulsionnelle_simu), 10, 2, 0.4);
 
 figure
-plot(t, abs(reponse_impulsionnelle_simu_repeted), t, threshold)
+plot(t, abs(reponse_impulsionnelle_simu), t, threshold)
 hold on
 scatter(t, hits*2, "filled", "red")
