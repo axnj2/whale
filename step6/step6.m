@@ -32,9 +32,9 @@ Fs = 48000; % fréquence d'échantillonnage
 Q = 4096; % nombre de fréquences échantillonées
 
 % statistical analysis
-num_realisations = 10;
+num_realisations = 20;
 bias_samples = 0.1:0.1:1;
-SNR_samples = -20:5:20;
+SNR_samples = -20:10:20;
 
 
 
@@ -137,8 +137,10 @@ toc
 figure
 hold on
 for i = 1:length(SNR_samples)
-    scatter( Results_table(i, :, 1), Results_table(i,:,2), SNR_samples(i)*ones(size(Results_table(i,:,2))), 'DisplayName', sprintf("SNR = %d dB", SNR_samples(i)))
+    plot(  Results_table(i,:,2), Results_table(i, :, 1),  'DisplayName', sprintf("SNR = %d dB", SNR_samples(i)))
 end
+xlabel("Missed detection rate")
+ylabel("False alarm rate")
 
 %{
 % plot
