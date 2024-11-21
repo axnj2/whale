@@ -34,7 +34,7 @@ end
 
 function [chunk_signal] = get_chunk(recorded_message, chunk_index, start_of_message, T, Fs)
     % chunk indices start at 1 for this function 
-    %
+    % assumes 1 period of delay between each chunk
     length_of_chunk = floor(T*Fs);
     chunk_signal = recorded_message((start_of_message + (chunk_index-1)*2*length_of_chunk + 1):(start_of_message + ((chunk_index-1)*2+1)*length_of_chunk));
     %                                                                  ^^\ 2* to skip the delay
