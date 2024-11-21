@@ -15,6 +15,8 @@ function [t, signal] = fsk_gen_1_period(f0, detla_f, M, T, Fs, number)
 
     % generate the time vector
     t = 0:1/Fs:T;
+    t = t(1:end-1);
+    
     % generate the signal
 
     signal =cos(2*pi*(f0 + double(number)*detla_f)*t);

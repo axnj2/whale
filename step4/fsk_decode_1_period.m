@@ -1,11 +1,16 @@
 function [decoded_message] = fsk_decode_1_period(signal, f0, delta_f, M, T, Fs)
     arguments
-        signal double
+        signal (1,:) double  % check if signal is a line vector
         f0 double
         delta_f double
         M double
         T double
         Fs double
+    end
+    
+    %verify size of entered signal
+    if not(size(signal) == [1, floor(T/Fs)])
+        error('fsk_decode_1_period: incorrect signal size');    
     end
 
     % projection of the signal on the different base functions
