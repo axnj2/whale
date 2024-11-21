@@ -1,4 +1,4 @@
-clc; clear; close all;
+clear; close all;
 addpath("../")
 
 function [ht] = h(Fs)
@@ -30,6 +30,11 @@ bias = 0.5;
 % on choisit le temps d'enregistrement par rapport au nombre de fréquences échantillonées
 Fs = 48000; % fréquence d'échantillonnage
 Q = 4096; % nombre de fréquences échantillonées
+
+% statistical analysis
+num_realisations = 10;
+bias_samples = 0.1:0.1:1;
+SNR_samples = -40:5:20;
 
 
 
@@ -100,28 +105,30 @@ end
 % real hits
 real_hits_indices = [284, 7918, 7920];
 
+Results_table = zeros(length(SNR_samples), length(bias_samples), 2);
 
-sum_false_alarms = 0;
-sum_missed_dectections = 0;
+for i_SNR = 1:length(SNR_samples)
+    for i_bias = 1:length(bias_samples)
+        num_false_alarms = zeros(1,num_realisations);
+        num_missed_dectections = zeros(1,num_realisations);
+        for i = 1:num_realisations
+            [reponse_impulsionnelle_simu, t] = simu_canal_OFDM_radar(Fs, Q, SNR_samples(i_SNR));
 
-for i = 1:16
-    [reponse_impulsionnelle_simu, t] = simu_canal_OFDM_radar(Fs, Q, SNR);
+            [hits_indices] = detect_hits(reponse_impulsionnelle_simu, 25, 5, bias_samples(i_bias));
+        
+            acc_detect = find(hits_indices==real_hits_indices(1) | hits_indices==real_hits_indices(2) | hits_indices==real_hits_indices(3));
+            num_acc_detect = length(acc_detect);
+            number_missed_detect = 2-num_acc_detect;
 
-    [hits_indices] = detect_hits(reponse_impulsionnelle_simu, 25, 5, bias);
- 
-    acc_detect = find(hits_indices==real_hits_indices(1) | hits_indices==real_hits_indices(2) | hits_indices==real_hits_indices(3));
-    num_acc_detect = length(acc_detect);
-    number_missed_detect = 2-num_acc_detect;
-
-    false_alarms = hits_indices(not(hits_indices==real_hits_indices(1) | hits_indices==real_hits_indices(2)| hits_indices==real_hits_indices(3)));
-    num_false_alarms = length(false_alarms);
-    sum_false_alarms = sum_false_alarms + num_false_alarms;
-    sum_missed_dectections = sum_missed_dectections + number_missed_detect;
+            false_alarms = hits_indices(not(hits_indices==real_hits_indices(1) | hits_indices==real_hits_indices(2)| hits_indices==real_hits_indices(3)));
+            num_false_alarm = length(false_alarms);
+            num_false_alarms(i) = num_false_alarm;
+            num_missed_dectections(i) = number_missed_detect;
+        end
+        sum(num_false_alarms)
+        sum(num_missed_dectections)
+    end
 end
-
-sum_false_alarms
-sum_missed_dectections
-
 %{
 % plot
 figure
