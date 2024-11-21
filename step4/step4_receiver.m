@@ -13,11 +13,19 @@ if record_sound
     T = 10/(2*delta_f);
 
     %lengh of the message
-    number_of_chunks = 2;
+    if message_type == "text"
+        message_length = -1; % Caution this needs to be defined manually
+        number_of_chunks = 2*message_length;
+    end
+
 else
     % Load the data and parameters
     recorded_message = audioread("step_4_output.wav");
     load("parameters.mat", "f0", "delta_f", "M", "T", "Fs", "number_of_chunks");
+end
+
+if number_of_chunks < 0
+    error("message_length or image size needs to be defined manually");
 end
 
 if record_sound
@@ -37,7 +45,11 @@ function [chunk_signal] = get_chunk(recorded_message, chunk_index, start_of_mess
     % assumes 1 period of delay between each chunk
     length_of_chunk = floor(T*Fs);
     chunk_signal = recorded_message((start_of_message + (chunk_index-1)*2*length_of_chunk + 1):(start_of_message + ((chunk_index-1)*2+1)*length_of_chunk));
-    %                                                                  ^^\ 2* to skip the delay
+    %                                                                   ^\ 2* to skip the delay
+end
+
+function [t0] = find_start_of_message(recorded_message, f0, delta_f, M, T, Fs)
+
 end
 
 % TODO : find the start of the message
