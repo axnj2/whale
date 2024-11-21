@@ -44,16 +44,36 @@ function [chunk_signal] = get_chunk(recorded_message, chunk_index, start_of_mess
     % chunk indices start at 1 for this function 
     % assumes 1 period of delay between each chunk
     length_of_chunk = floor(T*Fs);
-    chunk_signal = recorded_message((start_of_message + (chunk_index-1)*2*length_of_chunk + 1):(start_of_message + ((chunk_index-1)*2+1)*length_of_chunk));
+    chunk_index
+    chunk_signal = recorded_message((start_of_message + (chunk_index-1)*2*length_of_chunk + 1 ):(start_of_message + ((chunk_index-1)*2+1)*length_of_chunk));
     %                                                                   ^\ 2* to skip the delay
 end
 
-function [t0] = find_start_of_message(recorded_message, f0, delta_f, M, T, Fs)
+function [t0_index] = find_start_of_message(recorded_message, f0, delta_f, M, T, Fs)
+    % find the start of the message
+    % the message starts with a f0 frequency for T seconds
+    window_time = 10/(f0);
+    window_size = floor(window_time*Fs);
 
+    f0_powers = zeros(1, floor(length(recorded_message)/window_size));
+    % loop until we find a jump in the fft for the f0 frequency
+    for i = 1:floor(length(recorded_message)/window_size)-1
+        window = recorded_message((i-1)*window_size+1:i*window_size);
+        fft_window = fft(window);
+        % frequencies are given by : Fs/(window_size/2)*(-Q:(Q)-1)
+        [~, f0_index] = find((Fs/(window_size/2)*(-window_size/2:(window_size/2)-1) == f0));
+        f0_powers(i) = abs(fft_window(f0_index));
+        if i > 21
+            if f0_powers(i) > 10*mean(f0_powers(i-21:i-1))
+                t0_index = (i-1)*window_size + window_size/2;
+                return
+            end
+        end
+    end
 end
 
 % TODO : find the start of the message
-start_of_message = 0;
+[start_of_message] = find_start_of_message(recorded_message, f0, delta_f, M, T, Fs)
 
 
 %decode 4 bites of the message :

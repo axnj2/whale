@@ -16,7 +16,12 @@ for i = 1:number_of_windows
     spectrum(:, i) = abs(fft_window(1:window_size/2+1));
 end
 
+figure;
+plot(signal);
+
 % show the spectrum
 figure;
 imagesc(spectrum);
+
+
 

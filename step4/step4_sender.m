@@ -9,6 +9,8 @@ Fs = 48000; % [Hz]
 % delta_f = 1/(2*T) =>
 T = 10/(2*delta_f);
 
+Delay_before_start = 20000; % [samples]
+
 message = 'hello sound communication';
 %message = 'h';
 
@@ -47,19 +49,20 @@ number_of_chunks = length(message_decimal)*2;
 
 tic
 final_signal = [];
+
+% add preamble to the signal for 1 period at f0
+[~, preamble] = fsk_gen_1_period(f0, delta_f, M, T, Fs, 0);
+final_signal = [preamble, zeros(1, round(T*Fs))];
+
 for i = 1:number_of_chunks/2
     byte_signal = encode_byte(message_decimal(i), f0, delta_f, M, T, Fs);
-    size(byte_signal)
-    if i == 1
-        final_signal = [byte_signal, delay_signal];
-    else
-        final_signal = [final_signal, byte_signal, delay_signal];
-    end
+    final_signal = [final_signal, byte_signal, delay_signal];
 end
 toc
 
 %normalize the signal
 final_signal = final_signal/max(abs(final_signal));
+final_signal = [zeros(1, Delay_before_start), final_signal];
 
 if play_sound
     player = audioplayer(final_signal, Fs, 24, 1); % 1 is the ID of the macbook speaker
