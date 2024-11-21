@@ -34,7 +34,7 @@ Q = 4096; % nombre de fréquences échantillonées
 % statistical analysis
 num_realisations = 10;
 bias_samples = 0.1:0.1:1;
-SNR_samples = -40:5:20;
+SNR_samples = -20:5:20;
 
 
 
@@ -102,6 +102,7 @@ function [hits_indices] = detect_hits(reponse_impulsionnelle_simu, numRefCells, 
 
 end
 
+tic
 % real hits
 real_hits_indices = [284, 7918, 7920];
 
@@ -109,8 +110,8 @@ Results_table = zeros(length(SNR_samples), length(bias_samples), 2);
 
 for i_SNR = 1:length(SNR_samples)
     for i_bias = 1:length(bias_samples)
-        num_false_alarms = zeros(1,num_realisations);
-        num_missed_dectections = zeros(1,num_realisations);
+        false_alarms_rates = zeros(1,num_realisations);
+        missed_dectections_rates = zeros(1,num_realisations);
         for i = 1:num_realisations
             [reponse_impulsionnelle_simu, t] = simu_canal_OFDM_radar(Fs, Q, SNR_samples(i_SNR));
 
@@ -119,16 +120,26 @@ for i_SNR = 1:length(SNR_samples)
             acc_detect = find(hits_indices==real_hits_indices(1) | hits_indices==real_hits_indices(2) | hits_indices==real_hits_indices(3));
             num_acc_detect = length(acc_detect);
             number_missed_detect = 2-num_acc_detect;
+            missed_detection_rate = number_missed_detect/2;
 
             false_alarms = hits_indices(not(hits_indices==real_hits_indices(1) | hits_indices==real_hits_indices(2)| hits_indices==real_hits_indices(3)));
-            num_false_alarm = length(false_alarms);
-            num_false_alarms(i) = num_false_alarm;
-            num_missed_dectections(i) = number_missed_detect;
+            false_alarm_rate = length(false_alarms)/(2*Q); % alarm rate per sample
+
+            false_alarms_rates(i) = false_alarm_rate;
+            missed_dectections_rates(i) = missed_detection_rate;
         end
-        sum(num_false_alarms)
-        sum(num_missed_dectections)
+        Results_table(i_SNR, i_bias, 1) = mean(false_alarms_rates);
+        Results_table(i_SNR, i_bias, 2) = mean(missed_dectections_rates);
     end
 end
+toc
+
+figure
+hold on
+for i = 1:length(SNR_samples)
+    scatter( Results_table(i, :, 1), Results_table(i,:,2), SNR_samples(i)*ones(size(Results_table(i,:,2))), 'DisplayName', sprintf("SNR = %d dB", SNR_samples(i)))
+end
+
 %{
 % plot
 figure
