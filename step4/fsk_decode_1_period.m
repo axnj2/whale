@@ -9,8 +9,10 @@ function [decoded_message] = fsk_decode_1_period(signal, f0, delta_f, M, T, Fs)
     end
     
     %verify size of entered signal
-    if not(size(signal) == [1, floor(T/Fs)])
-        error('fsk_decode_1_period: incorrect signal size');    
+    if not(min(size(signal) == [1, floor(T/Fs)]))
+        dimensions = size(signal);
+        error("fsk_decode_1_period: incorrect signal size, should be [%d, %d] and is [%d, %d]", ...
+            1, floor(T/Fs), dimensions(1), dimensions(2));    
     end
 
     % projection of the signal on the different base functions
