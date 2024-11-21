@@ -10,6 +10,7 @@ Fs = 48000; % [Hz]
 T = 10/(2*delta_f);
 
 message = 'hello sound communication';
+%message = 'h';
 
 % switch between playing sound and saving to file for testing
 play_sound = false;
@@ -42,10 +43,13 @@ message_decimal = uint8(message);
 
 delay_signal = zeros(1, round(T*Fs)); % of time T
 
+number_of_chunks = length(message_decimal)*2;
+
 tic
 final_signal = [];
-for i = 1:length(message_decimal)
+for i = 1:number_of_chunks/2
     byte_signal = encode_byte(message_decimal(i), f0, delta_f, M, T, Fs);
+    size(byte_signal)
     if i == 1
         final_signal = [byte_signal, delay_signal];
     else
@@ -62,5 +66,5 @@ if play_sound
     play(player);   
 else
     audiowrite('step_4_output.wav', final_signal, Fs);
-    save("parameters.mat", "f0", "delta_f", "M", "T", "Fs");
+    save("parameters.mat", "f0", "delta_f", "M", "T", "Fs", "number_of_chunks");
 end

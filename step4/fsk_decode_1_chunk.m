@@ -1,15 +1,19 @@
-function [decoded_message] = fsk_decode_1_period(signal, f0, delta_f, M, T, Fs)
-    arguments
-        signal (1,:) double  % check if signal is a line vector
+function [decoded_message] = fsk_decode_1_chunk(signal, f0, delta_f, M, T, Fs)
+    arguments (Input)
+        signal (1,:) double  % transposes to have the good dimensions (column vector)
         f0 double
         delta_f double
         M double
         T double
         Fs double
     end
+
+    arguments (Output) 
+        decoded_message uint8
+    end
     
     %verify size of entered signal
-    if not(all(size(signal) == [1, floor(T/Fs)]))
+    if not(all(size(signal) == [1, floor(T*Fs)]))
         dimensions = size(signal);
         error("fsk_decode_1_period: incorrect signal size, should be [%d, %d] and is [%d, %d]", ...
             1, floor(T/Fs), dimensions(1), dimensions(2));    
@@ -25,5 +29,5 @@ function [decoded_message] = fsk_decode_1_period(signal, f0, delta_f, M, T, Fs)
     % find the maximum projection
     [~, max_index] = max(projections);
 
-    decoded_message = max_index - 1;
+    decoded_message = uint8(max_index - 1);
 end
