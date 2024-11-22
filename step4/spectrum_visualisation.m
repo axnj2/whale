@@ -5,15 +5,19 @@ signal = audioread("step_4_output.wav");
 load("parameters.mat", "f0", "delta_f", "M", "T", "Fs");
 
 % sliding window parameters
+%window_size = floor(window_time*Fs);
+%window_size = 100;
 window_size = T*Fs;
 number_of_windows = floor(length(signal)/window_size);
 
+signal = signal(31:end);
+
 % Compute the spectrum for each window
-spectrum = zeros(ceil(window_size/2)+1, number_of_windows);
-for i = 1:number_of_windows
+spectrum = zeros(ceil(window_size), number_of_windows);
+for i = 1:number_of_windows-1
     window = signal((i-1)*window_size+1:i*window_size);
     fft_window = fft(window);
-    spectrum(:, i) = abs(fft_window(1:window_size/2+1));
+    spectrum(:, i) = abs(fft_window); %(1:window_size/2+1));
 end
 
 figure;

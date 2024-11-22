@@ -19,6 +19,9 @@ function [decoded_message] = fsk_decode_1_chunk(signal, f0, delta_f, M, T, Fs)
             1, floor(T/Fs), dimensions(1), dimensions(2));    
     end
 
+    figure;
+    plot(abs(fft(signal)));
+
     % projection of the signal on the different base functions
     projections = zeros(1, M);
     for i = 0:M-1
