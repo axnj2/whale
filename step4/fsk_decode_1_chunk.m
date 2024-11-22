@@ -1,4 +1,4 @@
-function [decoded_message] = fsk_decode_1_chunk(signal, f0, delta_f, M, T, Fs)
+function [decoded_message] = fsk_decode_1_chunk(signal, f0, delta_f, M, T, Fs, non_coherent)
     arguments (Input)
         signal (1,:) double  % transposes to have the good dimensions (column vector)
         f0 double
@@ -6,6 +6,7 @@ function [decoded_message] = fsk_decode_1_chunk(signal, f0, delta_f, M, T, Fs)
         M double
         T double
         Fs double
+        non_coherent int8 = 0
     end
 
     arguments (Output) 
@@ -19,14 +20,22 @@ function [decoded_message] = fsk_decode_1_chunk(signal, f0, delta_f, M, T, Fs)
             1, floor(T/Fs), dimensions(1), dimensions(2));    
     end
 
-    figure;
-    plot(abs(fft(signal)));
-
     % projection of the signal on the different base functions
     projections = zeros(1, M);
     for i = 0:M-1
-        [~, base_signal] = fsk_gen_1_period(f0, delta_f, M, T, Fs, i);
-        projections(i+1) = sum(signal.*base_signal);
+        if non_coherent
+            % generate the time vector
+            t = 0:1/Fs:T;
+            t = t(1:end-1);
+
+            % generate the signal
+            base_signal = exp(1i*2*pi*(f0 + i*delta_f)*t);
+    
+        else
+            [~, base_signal] = fsk_gen_1_period(f0, delta_f, M, T, Fs, i);
+        end
+        
+        projections(i+1) = abs(sum(signal.*base_signal));
     end
 
     % find the maximum projection

@@ -9,7 +9,7 @@ Fs = 48000; % [Hz]
 % delta_f = 1/(2*T) =>
 T = 10/(2*delta_f);
 
-Delay_before_start = 20000; % [samples]
+Delay_before_start = 20000 + 11; % [samples]
 
 message = 'hello sound communication';
 %message = 'h';

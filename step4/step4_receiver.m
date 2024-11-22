@@ -86,7 +86,7 @@ start_of_message = start_of_message + 2*T*Fs; % to account for the delay
 %decode 4 bites of the message :
 chunks_value = zeros(1, number_of_chunks);
 for i = 1:number_of_chunks
-    chunks_value(i) = fsk_decode_1_chunk(get_chunk(recorded_message, i, start_of_message, T, Fs), f0, delta_f, M, T-10/f0, Fs);
+    chunks_value(i) = fsk_decode_1_chunk(get_chunk(recorded_message, i, start_of_message, T, Fs), f0, delta_f, M, T-10/f0, Fs, true);
 end
 
 %decode the message
