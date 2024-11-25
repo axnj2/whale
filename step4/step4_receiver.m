@@ -37,6 +37,7 @@ if record_sound
 
     %store recorded message
     recorded_message = [getaudiodata(recorder)];
+    visualise_signal_spectrum(T, Fs, recorded_message);
 end
 
 
