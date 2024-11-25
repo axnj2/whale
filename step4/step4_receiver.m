@@ -1,7 +1,7 @@
 clc; clear; close all hidden;
 
 % choose between recording sound and loading from file
-record_sound = false;
+record_sound = true;
 message_type = "text"; % "text" or "image"
 
 if record_sound
@@ -14,7 +14,7 @@ if record_sound
 
     %lengh of the message
     if message_type == "text"
-        message_length = -1; % Caution this needs to be defined manually
+        message_length = 25; % Caution this needs to be defined manually
         number_of_chunks = 2*message_length;
     end
 
@@ -31,7 +31,7 @@ end
 if record_sound
     % listen for the incomming signal
     recorder = audiorecorder(Fs,24,1);
-    record(recorder,T+3);
+    record(recorder,5+ message_length*T*2);
 
     pause(1);
 
@@ -77,7 +77,7 @@ function [t0_index] = find_start_of_message(recorded_message, f0, delta_f, M, T,
             end
         end
     end
-
+    f0_powers
     t0_index = t0_index + 2*T*Fs % to account for the 
 end
 
