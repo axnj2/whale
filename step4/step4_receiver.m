@@ -68,20 +68,22 @@ function [t0_index] = find_start_of_message(recorded_message, f0, delta_f, M, T,
         if i > 21
             if f0_powers(i) > 10*mean(f0_powers(i-21:i-1))
                 t0_index = (i-1)*window_size + window_size/2 ;
-                return
+                break
             end
         else
             if f0_powers(i) > 1e-1 % FIXME :  might not work for recorded sound
                 t0_index = (i-1)*window_size + window_size/2 +2;
-                return
+                break
             end
         end
     end
+
+    t0_index = t0_index + 2*T*Fs % to account for the 
 end
 
-% TODO : find the start of the message
+
 [start_of_message] = find_start_of_message(recorded_message, f0, delta_f, M, T, Fs)
-start_of_message = start_of_message + 2*T*Fs; % to account for the delay
+start_of_message = start_of_message + ; 
 
 %decode 4 bites of the message :
 chunks_value = zeros(1, number_of_chunks);
