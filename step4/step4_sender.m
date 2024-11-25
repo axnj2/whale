@@ -71,3 +71,9 @@ else
     audiowrite('step_4_output.wav', final_signal, Fs);
     save("parameters.mat", "f0", "delta_f", "M", "T", "Fs", "number_of_chunks");
 end
+
+% spectral power density
+
+% [spectral_power_density, w] = pwelch(final_signal);
+% figure;
+% plot(w/pi, 10*log10(spectral_power_density));
