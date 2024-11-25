@@ -121,7 +121,7 @@ Results_table = zeros(length(SNR_samples), length(bias_samples), 2);
 
 
 for i_SNR = 1:length(SNR_samples)
-    % add noise
+    % add noise FIXME: change the noise each realisation
     [received_OFDM_signal] = add_noise(noiseless_received_signal, SNR_samples(i_SNR), Q);
     % calculate impulse response
     reponse_impulsionnelle_simu = calculate_impulse_response(received_OFDM_signal, Q, random_phase);

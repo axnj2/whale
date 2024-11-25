@@ -82,8 +82,7 @@ function [t0_index] = find_start_of_message(recorded_message, f0, delta_f, M, T,
 end
 
 
-[start_of_message] = find_start_of_message(recorded_message, f0, delta_f, M, T, Fs)
-start_of_message = start_of_message + ; 
+[start_of_message] = find_start_of_message(recorded_message, f0, delta_f, M, T, Fs);
 
 %decode 4 bites of the message :
 chunks_value = zeros(1, number_of_chunks);
