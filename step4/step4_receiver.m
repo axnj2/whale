@@ -1,13 +1,13 @@
 clc; clear; close all hidden;
 
 % choose between recording sound and loading from file
-record_sound = true;
+record_sound = false;
 message_type = "text"; % "text" or "image"
 
 if record_sound
     % define the constants
     M = 16;
-    f0 = 8000; % [Hz]
+    f0 = 6000; % [Hz]
     delta_f = 400; % [Hz]
     Fs = 48000; % [Hz]
     T = 10/(2*delta_f);
@@ -33,7 +33,7 @@ if record_sound
     recorder = audiorecorder(Fs,24,1);
     record(recorder,5+ message_length*T*2);
 
-    pause(1);
+    pause(6+ message_length*T*2);
 
     %store recorded message
     recorded_message = [getaudiodata(recorder)];
@@ -41,17 +41,19 @@ if record_sound
 end
 
 
-function [chunk_signal] = get_chunk(recorded_message, chunk_index, start_of_message, T, Fs)
+function [chunk_signal] = get_chunk(recorded_message, chunk_index, start_of_message, T, Fs, incertitude_window_size)
     % chunk indices start at 1 for this function 
     % assumes 1 period of delay between each chunk
     length_of_chunk = floor(T*Fs);
     chunk_signal = recorded_message((start_of_message + (chunk_index-1)*2*length_of_chunk + 1 ):(start_of_message + ((chunk_index-1)*2+1)*length_of_chunk));
     %                                                                   ^\ 2* to skip the delay
     %take into account the incertitude on the intial time
-    chunk_signal = chunk_signal(31:end-30);
+
+
+    chunk_signal = chunk_signal((incertitude_window_size/2 +1):end-incertitude_window_size/2);
 end
 
-function [t0_index] = find_start_of_message(recorded_message, f0, delta_f, M, T, Fs)
+function [t0_index, window_size] = find_start_of_message(recorded_message, f0, delta_f, M, T, Fs)
     % find the start of the message
     % the message starts with a f0 frequency for T seconds
     window_time = 10/(f0);
@@ -67,7 +69,7 @@ function [t0_index] = find_start_of_message(recorded_message, f0, delta_f, M, T,
         [~, f0_index] = find(Fs/(window_size)*(0:window_size/2) == f0);
         f0_powers(i) = abs(fft_window(f0_index));
         if i > 21
-            if f0_powers(i) > 10*mean(f0_powers(i-21:i-1))
+            if f0_powers(i) > 20*mean(f0_powers(i-21:i-1))
                 t0_index = (i-1)*window_size + window_size/2 ;
                 break
             end
@@ -78,17 +80,22 @@ function [t0_index] = find_start_of_message(recorded_message, f0, delta_f, M, T,
             end
         end
     end
-    f0_powers
-    t0_index = t0_index + 2*T*Fs % to account for the 
+
+    if exist("t0_index", "var") == 0
+        error("could not find the start of the message");
+    end
+
+    t0_index = t0_index + 2*T*Fs; % to account for the 
 end
 
 
-[start_of_message] = find_start_of_message(recorded_message, f0, delta_f, M, T, Fs);
+[start_of_message, incertitude_window_size] = find_start_of_message(recorded_message, f0, delta_f, M, T, Fs);
 
 %decode 4 bites of the message :
 chunks_value = zeros(1, number_of_chunks);
 for i = 1:number_of_chunks
-    chunks_value(i) = fsk_decode_1_chunk(get_chunk(recorded_message, i, start_of_message, T, Fs), f0, delta_f, M, T-10/f0, Fs, true);
+    chunks_value(i) = fsk_decode_1_chunk(get_chunk(recorded_message, i, start_of_message, T, Fs, incertitude_window_size),...
+     f0, delta_f, M, T-10/f0, Fs, true);
 end
 
 %decode the message

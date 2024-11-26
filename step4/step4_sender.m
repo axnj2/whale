@@ -2,14 +2,14 @@ clc; clear; close all hidden;
 
 % define the constants
 M = 16;
-f0 = 8000; % [Hz]
+f0 = 6000; % [Hz]
 delta_f = 400; % [Hz]
 Fs = 48000; % [Hz]
 
 % delta_f = 1/(2*T) =>
 T = 10/(2*delta_f);
 
-Delay_before_start = 20000 + 11; % [samples]
+Delay_before_start = 1000 + 11; % [samples]
 
 message = 'hello sound communication';
 %message = 'h';
@@ -74,6 +74,6 @@ end
 
 % spectral power density
 
-% [spectral_power_density, w] = pwelch(final_signal);
-% figure;
-% plot(w/pi, 10*log10(spectral_power_density));
+[spectral_power_density, w] = pwelch(final_signal);
+figure;
+ plot(w/pi, 10*log10(spectral_power_density));
