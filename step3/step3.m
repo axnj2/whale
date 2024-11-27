@@ -19,7 +19,7 @@ f = k*freq_spacing; % fréquences
 phase = 2*randi([0,1], 1, Q) - 1;
 
 % max time
-T = 1/freq_spacing  % freq_spacing = 1/T
+T = 1/freq_spacing; % freq_spacing = 1/T
 
 % time vector
 t = 0:1/Fs:T-1/Fs;
@@ -37,10 +37,10 @@ signal = signal/max(abs(signal));
 
 
 % --------- Emission et enregistrement du signal ----------
-player = audioplayer(repmat(signal, 1, 10), Fs, 24, 1); % 1 is the ID of the macbook speaker
+player = audioplayer(repmat(signal, 1, 10), Fs, 24); 
 play(player);
 
-recorder = audiorecorder(Fs, 24, 1, 0); % 0 is the ID of the macbook microphone
+recorder = audiorecorder(Fs, 24, 1); 
 record(recorder, T);
 
 pause(T+1); % pour être sûr que la mesure est finie

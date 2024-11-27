@@ -156,7 +156,7 @@ xlabel("Missed detection rate")
 ylabel("False alarm rate")
 
 %{
-% plot
+ plot
 figure
 plot(t, abs(reponse_impulsionnelle_simu), t, threshold)
 hold on
