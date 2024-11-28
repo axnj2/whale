@@ -108,7 +108,7 @@ else
 
     %calculate error rate : 
     perfect_image = format_image(imread('image.jpg'));
-    error_rate = sum(received_image ~= perfect_image, 'all')/size(received_image,1)*size(received_image,2);
+    error_rate = sum(received_image ~= perfect_image, 'all')/(size(received_image,1)*size(received_image,2));
 end
 
 

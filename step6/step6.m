@@ -33,7 +33,7 @@ Q = 4096; % nombre de fréquences échantillonées
 
 % statistical analysis
 num_realisations = 1;
-bias_samples = 0.1:0.1:1;
+bias_samples = 0.1:0.01:1;
 SNR_samples = -20:5:20;
 
 
