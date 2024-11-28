@@ -2,12 +2,12 @@ clc; clear; close all hidden;
 
 % choose between recording sound and loading from file
 record_sound = false;
-message_type = "text"; % "text" or "image"
+message_type = "image"; % "text" or "image"
 
 if record_sound
     % define the constants
     M = 16;
-    f0 = 6000; % [Hz]
+    f0 = 8000; % [Hz]
     delta_f = 400; % [Hz]
     Fs = 48000; % [Hz]
     T = 10/(2*delta_f);
@@ -16,9 +16,8 @@ if record_sound
     if message_type == "text"
         message_length = 25; % Caution this needs to be defined manually
         number_of_chunks = 2*message_length;
-    elseif message_type == "image"
-        % TODO : define the number of chunks for an image
     end
+
 
 else
     % Load the data and parameters
@@ -100,16 +99,21 @@ for i = 1:number_of_chunks
      f0, delta_f, M, T-10/f0, Fs, true);
 end
 
+bytes_of_message = zeros(1, number_of_chunks/2);
+for i = 1:number_of_chunks/2
+    bytes_of_message(i) = bitor(bitshift(chunks_value(2*i), 4), chunks_value(2*i-1));
+end
+
 %decode the message
 if message_type == "text"
     message = '';
     for i = 1:number_of_chunks/2
-        byte = bitor(bitshift(chunks_value(2*i), 4), chunks_value(2*i-1));
-        message(i) = char(byte);
+        message(i) = char(bytes_of_message(i));
     end
     disp(message);
 else
-    % TODO : decode the image
+    image = decode_image_from_uint8(bytes_of_message);
+    imagesc(image);
 end
 
 

@@ -1,8 +1,12 @@
 clc; clear; close all hidden;
 
+
+% switch between playing sound and saving to file for testing
+play_sound = false;
+
 % define the constants
 M = 16;
-f0 = 6000; % [Hz]
+f0 = 8000; % [Hz]
 delta_f = 400; % [Hz]
 Fs = 48000; % [Hz]
 
@@ -11,7 +15,7 @@ T = 10/(2*delta_f);
 
 Delay_before_start = 1000 + 11; % [samples]
 
-message_type = "text"; % "text" or "image"
+message_type = "image"; % "text" or "image"
 
 if message_type == "text"
     message = 'hello sound communication';
@@ -20,7 +24,7 @@ elseif message_type == "image"
     raw_image = rgb2gray(raw_image);
     
     % resize the image to a max dimension of 50 pixels
-    max_dimension = 50;
+    max_dimension = 64;
     [rows, cols] = size(raw_image);
     if rows > cols
         raw_image = imresize(raw_image, [max_dimension NaN]);
@@ -31,11 +35,13 @@ elseif message_type == "image"
     % convert to image to 1 bit grayscale
     image = raw_image > 128;
     imagesc(image);
+
+    % convert the image to a message
+    message = encode_image_to_uint8(image);
 end
 %message = 'h';
 
-% switch between playing sound and saving to file for testing
-play_sound = false;
+
 
 function [signal] = encode_byte(byte, f0, delta_f, M, T, Fs)
     % we first select the 4 least significant bits with mod(a, 16) and then the 4 most significant bits with bitshift(a, -4)
