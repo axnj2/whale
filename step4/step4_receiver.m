@@ -10,7 +10,7 @@ if record_sound
     f0 = 8000; % [Hz]
     delta_f = 400; % [Hz]
     Fs = 48000; % [Hz]
-    T = 10/(2*delta_f);
+    T = 8/(2*delta_f);
 
     %lengh of the message
     if message_type == "text"

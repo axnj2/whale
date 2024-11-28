@@ -11,7 +11,7 @@ delta_f = 400; % [Hz]
 Fs = 48000; % [Hz]
 
 % delta_f = 1/(2*T) =>
-T = 10/(2*delta_f);
+T = 8/(2*delta_f);
 
 Delay_before_start = 1000 + 11; % [samples]
 
