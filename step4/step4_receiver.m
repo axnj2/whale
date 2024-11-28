@@ -1,7 +1,7 @@
 clc; clear; close all hidden;
 
 % choose between recording sound and loading from file
-record_sound = false;
+record_sound = true;
 message_type = "image"; % "text" or "image"
 
 if record_sound
@@ -36,9 +36,9 @@ end
 if record_sound
     % listen for the incomming signal
     recorder = audiorecorder(Fs,24,1);
-    record(recorder,5+ message_length*T*2);
+    record(recorder,5+ number_of_chunks*T*2);
 
-    pause(6+ message_length*T*2);
+    pause(6+ number_of_chunks*T*2);
 
     %store recorded message
     recorded_message = [getaudiodata(recorder)];
@@ -118,6 +118,9 @@ if message_type == "text"
 else
     image = decode_image_from_uint8(bytes_of_message);
     imagesc(image);
+
+    %calculate error rate : 
+    
 end
 
 
