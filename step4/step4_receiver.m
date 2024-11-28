@@ -16,6 +16,10 @@ if record_sound
     if message_type == "text"
         message_length = 25; % Caution this needs to be defined manually
         number_of_chunks = 2*message_length;
+    elseif message_type == "image"
+        image_height = 48; % Caution this needs to be defined manually
+        image_width = 64; % Caution this needs to be defined manually
+        number_of_chunks = (image_height * image_width)/4 + 4
     end
 
 
