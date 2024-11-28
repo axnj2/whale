@@ -116,11 +116,12 @@ if message_type == "text"
     end
     disp(message);
 else
-    image = decode_image_from_uint8(bytes_of_message);
-    imagesc(image);
+    received_image = decode_image_from_uint8(bytes_of_message);
+    imagesc(received_image);
 
     %calculate error rate : 
-    
+    perfect_image = format_image(imread('image.jpg'));
+    error_rate = sum(received_image ~= perfect_image, 'all')/size(received_image,1)*size(received_image,2);
 end
 
 

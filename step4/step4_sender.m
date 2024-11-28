@@ -21,21 +21,8 @@ if message_type == "text"
     message = 'hello sound communication';
 elseif message_type == "image"
     raw_image = imread('image.jpg');
-    raw_image = rgb2gray(raw_image);
-    
-    % resize the image to a max dimension of 50 pixels
-    max_dimension = 64;
-    [rows, cols] = size(raw_image);
-    if rows > cols
-        raw_image = imresize(raw_image, [max_dimension NaN]);
-    else
-        raw_image = imresize(raw_image, [NaN max_dimension]);
-    end
-
-    % convert to image to 1 bit grayscale
-    image = raw_image > 128;
+    image = format_image(raw_image);
     imagesc(image);
-
     % convert the image to a message
     message = encode_image_to_uint8(image);
 end
