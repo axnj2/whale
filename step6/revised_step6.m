@@ -1,19 +1,12 @@
-clear all; close all;
+clc; clear all; close all;
 addpath("../")
 
 %parametres
 Fs = 48000; % fréquence d'échantillonnage
 Q = 4096; % nombre de fréquences échantillonées
-alpha_r = 0.4;
-alpha_d = 0.5;
-d_m = 2; %m
-d_d = 0.05; %m
-v = 340; %m/s
 
-tau_r = 2*d_m/v;
-tau_d = d_d/v;
-
-
+%Signal to noise ratio
+SNR = -40; %dB
 
 
 function [ht] = h(Fs)
@@ -66,6 +59,7 @@ function [signal_conv_simu, random_phase] = simu_OFDM_radar_send_receive_noisele
 
     % convolute signal with h(t)
     signal_conv_simu = conv(transpose(signal), h(Fs), 'same');
+    signal_conv_simu = signal_conv_simu/max(abs(signal_conv_simu));
 end
 
 
@@ -79,29 +73,24 @@ function [reponse_impulsionnelle_simu] = calculate_impulse_response(received_OFD
     reponse_impulsionnelle_simu = ifft(fft_signal_conv_phase_comp_simu);
 end
 
-
-%Signal to noise ratio
-SNR = -40; %dB
-
 %received signal
 [noiseless_received_signal, random_phase] = simu_OFDM_radar_send_receive_noiseless(Fs, Q);
-[impulse_response] = calculate_impulse_response(noiseless_received_signal,Q,random_phase);
+[noiseless_impulse_response] = calculate_impulse_response(noiseless_received_signal,Q,random_phase);
 
 %real hits
-real_hits_indices = find(abs(impulse_response).^2 > 4);
-length(real_hits_indices)
+real_hits_indices = find(abs(noiseless_impulse_response).^2 > 4);
 
 %threshold
 threshold_values = 0:0.1:5; % Define a range of threshold values
-false_alarm_rate = zeros(1, length(threshold_values));
-missed_detection_rate = zeros(1, length(threshold_values));
+false_alarm_rates = zeros(1, length(threshold_values));
+missed_detection_rates = zeros(1, length(threshold_values));
 
 % Noise implementation (outside the loop)
 P_signal = sum(noiseless_received_signal.^2) / length(noiseless_received_signal);
-P_noise = P_signal / 10^(SNR / 10);
+P_noise = P_signal / (10^(SNR / 10));
 noise = randn(1, 2 * Q) * sqrt(P_noise);
 
-noised_received_signal = noiseless_received_signal + noise;
+noised_received_signal = noiseless_received_signal + noise; % FIXME : addition of a line vector and column vectore
 noised_received_signal = noised_received_signal / max(abs(noised_received_signal));
 
 [noised_impulse_response] = calculate_impulse_response(noised_received_signal, Q, random_phase);
@@ -117,17 +106,17 @@ for i = 1:length(threshold_values)
     % False alarm
     false_alarms_indices = potential_hits_indices(~ismember(potential_hits_indices, real_hits_indices));
     false_alarm_number = length(false_alarms_indices);
-    false_alarm_rate(i) = false_alarm_number / (2 * Q);
+    false_alarm_rates(i) = false_alarm_number / (2 * Q);
 
     % Missed detection
     missed_detection_indices = real_hits_indices(~ismember(real_hits_indices, potential_hits_indices));
     missed_detection_number = length(missed_detection_indices);
-    missed_detection_rate(i) = missed_detection_number / (2 * Q);
+    missed_detection_rates(i) = missed_detection_number / (2 * Q);
 end
 
 % Plot results
 figure;
-plot(false_alarm_rate, missed_detection_rate);
+plot(false_alarm_rates, missed_detection_rates);
 xlabel('False Alarm Rate');
 ylabel('Missed Detection Rate');
 title('ROC Curve');
