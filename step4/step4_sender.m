@@ -11,7 +11,27 @@ T = 10/(2*delta_f);
 
 Delay_before_start = 1000 + 11; % [samples]
 
-message = 'hello sound communication';
+message_type = "text"; % "text" or "image"
+
+if message_type == "text"
+    message = 'hello sound communication';
+elseif message_type == "image"
+    raw_image = imread('image.jpg');
+    raw_image = rgb2gray(raw_image);
+    
+    % resize the image to a max dimension of 50 pixels
+    max_dimension = 50;
+    [rows, cols] = size(raw_image);
+    if rows > cols
+        raw_image = imresize(raw_image, [max_dimension NaN]);
+    else
+        raw_image = imresize(raw_image, [NaN max_dimension]);
+    end
+
+    % convert to image to 1 bit grayscale
+    image = raw_image > 128;
+    imagesc(image);
+end
 %message = 'h';
 
 % switch between playing sound and saving to file for testing
@@ -69,7 +89,7 @@ if play_sound
     play(player);   
 else
     audiowrite('step_4_output.wav', final_signal, Fs);
-    save("parameters.mat", "f0", "delta_f", "M", "T", "Fs", "number_of_chunks");
+    save("parameters.mat", "f0", "delta_f", "M", "T", "Fs", "number_of_chunks", "message_type");
 end
 
 % spectral power density

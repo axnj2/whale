@@ -16,12 +16,14 @@ if record_sound
     if message_type == "text"
         message_length = 25; % Caution this needs to be defined manually
         number_of_chunks = 2*message_length;
+    elseif message_type == "image"
+        % TODO : define the number of chunks for an image
     end
 
 else
     % Load the data and parameters
     recorded_message = audioread("step_4_output.wav");
-    load("parameters.mat", "f0", "delta_f", "M", "T", "Fs", "number_of_chunks");
+    load("parameters.mat", "f0", "delta_f", "M", "T", "Fs", "number_of_chunks", "message_type");
 end
 
 if number_of_chunks < 0
