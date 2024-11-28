@@ -17,7 +17,7 @@ function [decoded_message] = fsk_decode_1_chunk(signal, f0, delta_f, M, T, Fs, n
     if not(all(size(signal) == [1, floor(T*Fs)]))
         dimensions = size(signal);
         error("fsk_decode_1_period: incorrect signal size, should be [%d, %d] and is [%d, %d]", ...
-            1, floor(T/Fs), dimensions(1), dimensions(2));    
+            1, floor(T*Fs), dimensions(1), dimensions(2));    
     end
 
     % projection of the signal on the different base functions

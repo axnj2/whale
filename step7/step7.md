@@ -1,0 +1,1 @@
+Pas trop compris l'histoire de densité spectrale de puissance du bruit #Q

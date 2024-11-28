@@ -13,7 +13,7 @@ function [chunk_signal] = get_chunk(recorded_message, chunk_index, start_of_mess
     end
 
     length_of_chunk = floor(T*Fs);
-    chunk_signal = recorded_message((start_of_message + (chunk_index-1)*(1+relative_delay_duration)*length_of_chunk + 1 ):...
+    chunk_signal = recorded_message((start_of_message + (chunk_index-1)*(1+relative_delay_duration)*length_of_chunk) +1:...
     ...                                                                   ^\ 2* to skip the delay
                                     (start_of_message + ((chunk_index-1)*(1+relative_delay_duration)+1)*length_of_chunk));
     %take into account the incertitude on the intial time
