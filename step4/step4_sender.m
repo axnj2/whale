@@ -29,28 +29,6 @@ end
 %message = 'h';
 
 
-
-function [signal] = encode_byte(byte, f0, delta_f, M, T, Fs)
-    % we first select the 4 least significant bits with mod(a, 16) and then the 4 most significant bits with bitshift(a, -4)
-    arguments
-        byte uint8
-        f0 double
-        delta_f double
-        M double
-        T double
-        Fs double
-    end
-
-    % encode the 4 least significant bits
-    [~, signal] = fsk_gen_1_period(f0, delta_f, M, T, Fs, mod(byte, 16));
-    % add a delay of T
-    signal = [signal, zeros(1, round(T*Fs))];
-    % encode the 4 most significant bits
-    [~, signal2] = fsk_gen_1_period(f0, delta_f, M, T, Fs, bitshift(byte, -4));
-    % append the secnd signal
-    signal = [signal, signal2];
-end
-
 % encode the message
 % transform the message into decimal
 message_decimal = uint8(message);
@@ -60,18 +38,14 @@ delay_signal = zeros(1, round(T*Fs)); % of time T
 
 number_of_chunks = length(message_decimal)*2;
 
-tic
-final_signal = [];
-
 % add preamble to the signal for 1 period at f0
 [~, preamble] = fsk_gen_1_period(f0, delta_f, M, T, Fs, 0);
 final_signal = [preamble, zeros(1, round(T*Fs))];
 
 for i = 1:number_of_chunks/2
     byte_signal = encode_byte(message_decimal(i), f0, delta_f, M, T, Fs);
-    final_signal = [final_signal, byte_signal, delay_signal];
+    final_signal = [final_signal, byte_signal];
 end
-toc
 
 %normalize the signal
 final_signal = final_signal/max(abs(final_signal));

@@ -1,7 +1,7 @@
 clc; clear; close all hidden;
 
 % choose between recording sound and loading from file
-record_sound = true;
+record_sound = false;
 message_type = "image"; % "text" or "image"
 
 if record_sound
@@ -43,19 +43,6 @@ if record_sound
     %store recorded message
     recorded_message = [getaudiodata(recorder)];
     visualise_signal_spectrum(T, Fs, recorded_message);
-end
-
-
-function [chunk_signal] = get_chunk(recorded_message, chunk_index, start_of_message, T, Fs, incertitude_window_size)
-    % chunk indices start at 1 for this function 
-    % assumes 1 period of delay between each chunk
-    length_of_chunk = floor(T*Fs);
-    chunk_signal = recorded_message((start_of_message + (chunk_index-1)*2*length_of_chunk + 1 ):(start_of_message + ((chunk_index-1)*2+1)*length_of_chunk));
-    %                                                                   ^\ 2* to skip the delay
-    %take into account the incertitude on the intial time
-
-
-    chunk_signal = chunk_signal((incertitude_window_size/2 +1):end-incertitude_window_size/2);
 end
 
 function [t0_index, window_size] = find_start_of_message(recorded_message, f0, delta_f, M, T, Fs)
