@@ -88,7 +88,7 @@ missed_detection_rates = zeros(1, length(threshold_values));
 % Noise implementation (outside the loop)
 P_signal = sum(noiseless_received_signal.^2) / length(noiseless_received_signal);
 P_noise = P_signal / (10^(SNR / 10));
-noise = randn(1, 2 * Q) * sqrt(P_noise);
+noise = randn(2 * Q, 1) * sqrt(P_noise);
 
 noised_received_signal = noiseless_received_signal + noise; % FIXME : addition of a line vector and column vectore
 noised_received_signal = noised_received_signal / max(abs(noised_received_signal));
