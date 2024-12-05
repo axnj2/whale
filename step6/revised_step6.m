@@ -6,8 +6,9 @@ Fs = 48000; % fréquence d'échantillonnage
 Q = 4096; % nombre de fréquences échantillonées
 
 %Signal to noise ratio
-SNR = -40; %dB
-
+SNR = -40:2:-15; %dB
+threshold_values = 0:0.01:2; % Define a range of threshold values
+num_realization = 1000; % number of realizations
 
 function [ht] = h(Fs)
     % h : impulse response of the system
@@ -66,57 +67,70 @@ end
 
 function [reponse_impulsionnelle_simu] = calculate_impulse_response(received_OFDM_signal, Q, random_phase)
     % fft of the convoluted signal
-    fft_signal_conv_simu = fft(received_OFDM_signal);
+    fft_signal_conv_simu = fft(received_OFDM_signal); % treats each column as one signal
 
     % compensation de la phase
-    fft_signal_conv_phase_comp_simu = [fft_signal_conv_simu(1:Q).*random_phase'; fft_signal_conv_simu(Q+1:2*Q).*random_phase(end:-1:1)'];
+    fft_signal_conv_phase_comp_simu = [fft_signal_conv_simu(1:Q,:).*random_phase'; fft_signal_conv_simu(Q+1:2*Q, :).*random_phase(end:-1:1)'];
     reponse_impulsionnelle_simu = ifft(fft_signal_conv_phase_comp_simu);
 end
 
 %received signal
 [noiseless_received_signal, random_phase] = simu_OFDM_radar_send_receive_noiseless(Fs, Q);
-[noiseless_impulse_response] = calculate_impulse_response(noiseless_received_signal,Q,random_phase);
+P_signal = sum(noiseless_received_signal.^2) / length(noiseless_received_signal);
 
-%real hits
+%find the real hits
+[noiseless_impulse_response] = calculate_impulse_response(noiseless_received_signal,Q,random_phase);
 real_hits_indices = find(abs(noiseless_impulse_response).^2 > 4);
 
 %threshold
-threshold_values = 0:0.1:5; % Define a range of threshold values
-false_alarm_rates = zeros(1, length(threshold_values));
-missed_detection_rates = zeros(1, length(threshold_values));
+false_alarm_rates = zeros(length(SNR), length(threshold_values));
+missed_detection_rates = zeros(length(SNR), length(threshold_values));
 
-% Noise implementation (outside the loop)
-P_signal = sum(noiseless_received_signal.^2) / length(noiseless_received_signal);
-P_noise = P_signal / (10^(SNR / 10));
-noise = randn(2 * Q, 1) * sqrt(P_noise);
 
-noised_received_signal = noiseless_received_signal + noise; % FIXME : addition of a line vector and column vectore
-noised_received_signal = noised_received_signal / max(abs(noised_received_signal));
+% Noise implementation (outside the loop) 
+base_noise = randn(2 * Q, num_realization);
 
-[noised_impulse_response] = calculate_impulse_response(noised_received_signal, Q, random_phase);
+for j_SNR =1:length(SNR)
+    P_noise = P_signal / (10^(SNR(j_SNR) / 10));
+    noise = base_noise * sqrt(P_noise);
+    % each column is a different realization of the noised signal
+    noised_received_signal = noise + noiseless_received_signal; 
+    noised_received_signal = noised_received_signal / max(max(abs(noised_received_signal)));
 
-for i = 1:length(threshold_values)
-    threshold_value = threshold_values(i);
-    P_threshold = threshold_value^2;
+    [noised_impulse_response] = calculate_impulse_response(noised_received_signal, Q, random_phase);
 
-    % Hit confirmation
-    potential_hits_indices = find(abs(noised_impulse_response).^2 > P_threshold);
-    confirmed_hits_indices = intersect(real_hits_indices, potential_hits_indices);
+    for i_thres = 1:length(threshold_values)
+        threshold_value = threshold_values(i_thres);
+        P_threshold = threshold_value^2;
 
-    % False alarm
-    false_alarms_indices = potential_hits_indices(~ismember(potential_hits_indices, real_hits_indices));
-    false_alarm_number = length(false_alarms_indices);
-    false_alarm_rates(i) = false_alarm_number / (2 * Q);
+        % Hit confirmation
+        % returns the the row indices of the hits
+        hits = abs(noised_impulse_response).^2 > P_threshold;
+        [hits_indices, ~] = find(hits);
 
-    % Missed detection
-    missed_detection_indices = real_hits_indices(~ismember(real_hits_indices, potential_hits_indices));
-    missed_detection_number = length(missed_detection_indices);
-    missed_detection_rates(i) = missed_detection_number / (2 * Q);
+        % False alarm
+        false_alarm_number = nnz(~ismember(hits_indices, real_hits_indices));
+        false_alarm_rates(j_SNR, i_thres) = false_alarm_number / (2 * Q * num_realization);
+
+
+        % Missed detection
+        missed_detection_number = 0;
+        for column_index = 1:num_realization
+            hits_indices = find(hits(:, column_index));
+            missed_detection_number = missed_detection_number  + nnz(~ismember(real_hits_indices, hits_indices));
+        end
+
+        missed_detection_rates(j_SNR, i_thres) = missed_detection_number / (2 * Q * num_realization);
+    end
 end
 
 % Plot results
 figure;
-plot(false_alarm_rates, missed_detection_rates);
+hold on;
+for j_SNR = 1:length(SNR)
+    plot(false_alarm_rates(j_SNR, :), missed_detection_rates(j_SNR, :), "DisplayName", sprintf("SNR = %d dB", SNR(j_SNR)));
+end
+legend;
 xlabel('False Alarm Rate');
 ylabel('Missed Detection Rate');
 title('ROC Curve');
