@@ -13,13 +13,13 @@ delta_f = 400; % [Hz]
 Fs = 48000; % [Hz]
 
 % delta_f = 1/(2*T_min) =>
-T = 8/(2*delta_f);
+T = 10/(2*delta_f);
 
 % relative delay duration :
 relative_delay_duration = 0.5;
 
 % message parameters, using a big parameter here alows us to use only 1 repetition as this is an ergodic process.
-number_of_bytes = 1000;
+number_of_bytes = 3000;
 % ---------------------------------------------------------------------------
 
 
@@ -93,18 +93,18 @@ for k = 1:length(SNRs)
     total_coherent_errors_random_phase = 0;
     for i = 1:number_of_repetitions
         % non-coherent decoding
-        decoded_message_non_coherent = decode_message(noisy_signal(i, :), number_of_bytes, f0, delta_f, M, T, Fs, relative_delay_duration, false);
+        decoded_message_non_coherent = decode_message(noisy_signal(i, :), number_of_bytes, f0, delta_f, M, T, Fs, relative_delay_duration, true);
         total_non_coherent_errors = total_non_coherent_errors + sum(decoded_message_non_coherent ~= original_message);
         % coherent decoding
-        decoded_message_coherent = decode_message(noisy_signal(i, :), number_of_bytes, f0, delta_f, M, T, Fs, relative_delay_duration, true);
+        decoded_message_coherent = decode_message(noisy_signal(i, :), number_of_bytes, f0, delta_f, M, T, Fs, relative_delay_duration, false);
         total_coherent_errors = total_coherent_errors + sum(decoded_message_coherent ~= original_message);
 
         % with random phase
         % non-coherent decoding
-        decoded_message_non_coherent_random_phase = decode_message(noisy_signal_with_random_phase(i, :), number_of_bytes, f0, delta_f, M, T, Fs, relative_delay_duration, false);
+        decoded_message_non_coherent_random_phase = decode_message(noisy_signal_with_random_phase(i, :), number_of_bytes, f0, delta_f, M, T, Fs, relative_delay_duration, true);
         total_non_coherent_errors_random_phase = total_non_coherent_errors_random_phase + sum(decoded_message_non_coherent_random_phase ~= original_message);
         % coherent decoding
-        decoded_message_coherent_random_phase = decode_message(noisy_signal_with_random_phase(i, :), number_of_bytes, f0, delta_f, M, T, Fs, relative_delay_duration, true);
+        decoded_message_coherent_random_phase = decode_message(noisy_signal_with_random_phase(i, :), number_of_bytes, f0, delta_f, M, T, Fs, relative_delay_duration, false);
         total_coherent_errors_random_phase = total_coherent_errors_random_phase + sum(decoded_message_coherent_random_phase ~= original_message);
     end
     error_rates_per_SNR_non_coherent(k) = total_non_coherent_errors/(number_of_repetitions*number_of_bytes);
@@ -114,13 +114,12 @@ for k = 1:length(SNRs)
 end
 
 hold on
-plot(SNRs, error_rates_per_SNR_non_coherent, 'DisplayName', "non-coherent decoding")
-plot(SNRs, error_rates_per_SNR_coherent, 'DisplayName', "coherent decoding")
-plot(SNRs, error_rates_per_SNR_non_coherent_random_phase, 'DisplayName', "non-coherent decoding with random phase")
-plot(SNRs, error_rates_per_SNR_coherent_random_phase, 'DisplayName', "coherent decoding with random phase")
+plot(SNRs, log10(error_rates_per_SNR_non_coherent), 'DisplayName', "non-coherent decoding")
+plot(SNRs, log10(error_rates_per_SNR_coherent), 'DisplayName', "coherent decoding")
+plot(SNRs, log10(error_rates_per_SNR_non_coherent_random_phase), 'DisplayName', "non-coherent decoding with random phase")
+plot(SNRs, log10(error_rates_per_SNR_coherent_random_phase), 'DisplayName', "coherent decoding with random phase")
 legend()
 title("Error rate as a function of the SNR")
 xlabel("SNR [dB]")
-ylabel("Error rate")
-ylim([-0.1, 1.1])
+ylabel("log(Error rate)")
 grid on
