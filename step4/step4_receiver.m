@@ -66,7 +66,7 @@ function [t0_index, window_size] = find_start_of_message(recorded_message, f0, d
                 break
             end
         else
-            if f0_powers(i) > 1e-1 % FIXME :  might not work for recorded sound
+            if f0_powers(i) > 1e-1 % FIXME :  might not work for recorded sound, has been tested with no issue.
                 t0_index = (i-1)*window_size + window_size/2 +2;
                 break
             end
