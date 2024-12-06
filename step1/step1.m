@@ -5,6 +5,7 @@ Fs = 48000; % samples per second [Hz]
 samples = 1024;
 Tf = samples/Fs; %s
 T = 1/Fs;
+Tp = 0.01; % length of the pulse [s]
 
 function x = g(t, fp, Tp)
     x=0;
@@ -17,12 +18,14 @@ end
 t = linspace(0, Tf, samples);
 x = zeros(size(t));
 for k = 1:length(t)
-    x(k) = g(t(k), fp, 0.01);
+    x(k) = g(t(k), fp, Tp);
 end
 
 % fft avant de l'émettre et enregistrer
 figure;
 plot(Fs/samples*(-samples/2:samples/2-1), abs(fftshift(fft(x))))
+figure;
+plot(t, x);
 
 
 player = audioplayer(repmat(x, 1, 50), Fs);
