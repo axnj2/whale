@@ -90,7 +90,8 @@ missed_detection_rates = zeros(length(SNR), length(threshold_values));
 % Noise implementation (outside the loop) 
 base_noise = randn(2 * Q, num_realization);
 
-for j_SNR =1:length(SNR)
+tic
+parfor j_SNR = 1:length(SNR)
     P_noise = P_signal / (10^(SNR(j_SNR) / 10));
     noise = base_noise * sqrt(P_noise);
     % each column is a different realization of the noised signal
@@ -123,6 +124,7 @@ for j_SNR =1:length(SNR)
         missed_detection_rates(j_SNR, i_thres) = missed_detection_number / (2 * Q * num_realization);
     end
 end
+toc
 
 % Plot results
 figure;

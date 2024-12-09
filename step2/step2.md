@@ -6,6 +6,7 @@
 
 ![bla](./images/image.png)
 
+
 $$
 \cos(2\pi ft) \otimes h(t) = y(t)
 $$

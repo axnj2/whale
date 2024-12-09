@@ -119,7 +119,7 @@ Results_table = zeros(length(SNR_samples), length(bias_samples), 2);
 
 
 
-
+tic
 for i_SNR = 1:length(SNR_samples)
     % add noise FIXME: change the noise each realisation
     [received_OFDM_signal] = add_noise(noiseless_received_signal, SNR_samples(i_SNR), Q);
@@ -146,6 +146,7 @@ for i_SNR = 1:length(SNR_samples)
         Results_table(i_SNR, i_bias, 2) = mean(missed_dectections_rates);
     end
 end
+toc
 
 figure
 hold on
