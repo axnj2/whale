@@ -1,20 +1,20 @@
 
 # Introduction
 
-# Step 1
+# Step 1 - Mark
+
+# Step 2 - Antoine
 
 
-# Step 2
+# Step 3 - Mark
 
-# Step 3 
+# Step 6 - Mark
 
-# Step 4
+# Step 4 - Antoine
 
-# Step 5
+# Step 5 - Antoine
 
-# Step 6
-  
-# Step 7
+# Step 7 - Antoine
 
 
 
