@@ -13,10 +13,20 @@ kmax = 1000;
 
 figure;
 plot(t, signalNormalPhase);
+xlabel('t [s]');
+ylabel('x(t)');
+
 figure;
 plot(t, signalRandomPhase);
+xlabel('t [s]');
+ylabel('x(t)'); 
+
 
 figure;
 plot(Fs/(Fs*T)*(-Fs*T/2:Fs*T/2-1), abs(fftshift(fft(signalNormalPhase))));
+xlabel('f [Hz]');
+ylabel('|X(f)|');
 figure
 plot(Fs/(Fs*T)*(-Fs*T/2:Fs*T/2-1), abs(fftshift(fft(signalRandomPhase))));
+xlabel('f [Hz]');
+ylabel('|X(f)|');

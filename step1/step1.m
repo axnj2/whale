@@ -1,6 +1,6 @@
 clc; clear all; close all hidden;
 
-fp = 2000; %Hz
+fp = 10000; %Hz
 Fs = 48000; % samples per second [Hz]
 samples = 1024;
 Tf = samples/Fs; %s
@@ -24,8 +24,12 @@ end
 % fft avant de l'émettre et enregistrer
 figure;
 plot(Fs/samples*(-samples/2:samples/2-1), abs(fftshift(fft(x))))
+xlabel('f [Hz]');
+ylabel('|X(f)|');
 figure;
 plot(t, x);
+xlabel('t [s]');
+ylabel('x(t)');
 
 
 player = audioplayer(repmat(x, 1, 50), Fs);

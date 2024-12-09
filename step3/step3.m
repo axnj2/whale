@@ -54,16 +54,22 @@ raw_fft_results = fft(x_recorded);
 
 figure;
 plot(Fs/Q*(0:(Q)-1), abs(raw_fft_results(1:Q)));
+xlabel('f [Hz]');
+ylabel('|Y(f)|');
 
 figure;
 % compensation de la phase
 fft_results = [raw_fft_results(1:Q).*phase'; raw_fft_results(Q+1:2*Q).*phase(end:-1:1)'];
 plot(Fs/Q*(-Q:(Q)-1), abs(fftshift(fft_results)));
+xlabel('f [Hz]');
+ylabel('|H(f)|');
 
 
 reponse_impulsionnelle = ifft(fft_results);
 figure;
 plot(t, reponse_impulsionnelle);
+xlabel('t [s]');
+ylabel('h(t)'); % réponse impulsionnelle
 
 
 % feedback : on peut aussi le faire en simulation pour valider que le code fonctionne correctement.
@@ -79,8 +85,8 @@ function [ht] = h(Fs)
     delay = 0.001; %s
 
     alpha_r = 0.4;
-    alpha_d = 0.5;
-    d_m = 0.15; %m
+    alpha_d = 0.7;
+    d_m = 1; %m
     d_d = 0.05; %m
     v = 340; %m/s
 
@@ -100,11 +106,15 @@ plot(h(Fs));
 signal_conv_simu = conv(transpose(signal), h(Fs), 'same');
 figure
 plot(t, signal_conv_simu);
+xlabel('t [s]');
+ylabel('y(t)'); % signal convoluted
 
 % fft of the convoluted signal
 fft_signal_conv_simu = fft(signal_conv_simu);
 figure
 plot(Fs/Q*(0:(Q)-1), abs(fftshift(fft_signal_conv_simu(1:Q))));
+xlabel('f [Hz]');  
+ylabel('|H(f)|');
 
 % compensation de la phase
 fft_signal_conv_phase_comp_simu = [fft_signal_conv_simu(1:Q).*phase'; fft_signal_conv_simu(Q+1:2*Q).*phase(end:-1:1)'];
@@ -113,6 +123,8 @@ reponse_impulsionnelle_simu = ifft(fft_signal_conv_phase_comp_simu);
 figure;
 reponse_impulsionnelle_simu_repeted = repmat(reponse_impulsionnelle_simu, 1, 2);
 plot(t, reponse_impulsionnelle_simu_repeted(length(t)/2:3*length(t)/2-1));
+xlabel('t [s]');   
+ylabel('h(t)'); % réponse impulsionnelle
 
 
 % ---------------------------------------------------------
