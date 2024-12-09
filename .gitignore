@@ -2,3 +2,5 @@
 Utils/
 .DS_Store
 tracked_files.json
+
+.vscode/
