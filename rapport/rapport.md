@@ -10,6 +10,24 @@
 
 
 # Step 1 - Mark
+La signal temporel est illustré sur la Fig [1]. Nous avons fait le choix d'utiliser une fréquence de 2000 Hz pour le pulse. En effet, avec la fréquence proposée de 8000 Hz, matlab n'arrivait pas à reproduire toutes les variations correctement.  Les autres paramètres restent inchangés.
+
+
+Fig[1] : Signal temporel du pulse RF
+
+La transformée de Fourier (TF) est illustré à la Fig[2]. Cependant, on observe que les pics de la TF sont différents des valeurs attendues (-2000 Hz et 2000 Hz). Ceci peut s'expliquer par la faible résolution de la FFT valant $\frac{F_{s}}{samples}$ et qui d'environ 47 Hz par ici.
+
+
+Fig[2] : TF du pulse RF
+
+En modifiant la durée du pulse, on observe que plus celui-ci est court, plus sa transformée de Fourier (TF) s'étend sur un large spectre de fréquences, Fig[3]. 
+
+Fig[3] : TF du pulse RF avec $T_{p} = 1ms$
+
+À l'inverse, lorsque le pulse est plus long, sa TF se concentre sur un spectre plus restreint. Concernant la fréquence du pulse, lorsque celle-ci augmente, les pics de la TF s’écartent davantage, Fig [4], tandis qu’une fréquence plus faible les rapproche.
+
+Fig [4] TF du pulse RF avec $fp = 10000 Hz$ 
+
 
 # Step 2 - Antoine
 
@@ -176,7 +194,33 @@ avec phase aléatoires : résultat très probant => voir figure `CanalResponse50
 
 
 # Step 3 - Mark
+La grille de fréquence est définie ci-dessous. (insérer )
 
+Les signaux temporels résultants de l'envoi simultané des cosinus sur la grille de fréquences sont présentés aux figures [5] et [6].La première est le signal sans compensation de phase aléatoire, qui a résulté en une impulsion de Dirac, saturant le hautparleur. La seconde est celle avec compensation de phase aléatoire ou cette saturation n'as pas eu lieu.
+![[Screenshot 2024-12-08 at 13.50.45.png]]
+figure [5]: signal temporel sans compensation de phase aléatoire
+
+
+![[Screenshot 2024-12-08 at 13.50.40.png]]
+
+figure [6]: signal temporel avec compensation de phase aléatoire
+
+Concernant le test du radar en situation réel, nos résultats n'ont pas étés très probants (montrer h(t) ?). Néanmoins, nous présentons ci-dessous les résultats de notre simulation. Commes paramètres de simulations, nous avons:
+- $\alpha_{r} = 0.4$
+- $\alpha_{d} = 0.7$
+- $d_{m} = 1m$
+- $d_{r} = 0.05m$
+
+
+
+Nous obtenons comme réponse en fréquence la figure [7] et la figure [8] en réponse impulsionnelle. En estimant la distance à l'aide de la formule $v = \frac{2d}{\Delta t}$, on obtient $d = 0,97m$ au lieu de $d = 1m$ 
+
+
+figure [7] : Réponse en fréquence simulée
+
+
+
+figure [8]: Réponse impulsionnelle simulée.
 # Step 6 - Mark
 
 # Step 4 - Antoine
