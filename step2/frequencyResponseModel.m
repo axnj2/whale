@@ -15,8 +15,8 @@ transfertFunctionNorm = @(f) sqrt(alpha_r^2 + alpha_d^2 + 2*alpha_r*alpha_d*cos(
 
 f = linspace(-24000, 24000,48000);
 plot(f, 20*log(abs(transfertFunctionNorm(f))), f, 20*log((transfertFunctionNorm(f))));
-xlabel('f [Db]');
-ylabel('H(f)');
+xlabel('f [Hz]');
+ylabel('|H(f)| [dB]');
 ylim([-100, 0]);
 
 figure;
