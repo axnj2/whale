@@ -32,7 +32,6 @@ end
 signal = signal/max(abs(signal));
 
 
-
 %pause(3) % pour avoir le temps de s'éloinger le l'ordinateur pour ne pas perturber la mesure
 
 
@@ -53,14 +52,14 @@ raw_fft_results = fft(x_recorded);
 
 
 figure;
-plot(Fs/Q*(-Q:(Q)-1), abs(raw_fft_results(1:2*Q)));
+plot(Fs/Q*(-Q:(Q)-1), 20*log(abs(raw_fft_results(1:2*Q))));
 xlabel('f [Hz]');
 ylabel('|Y(f)|');
 
 figure;
 % compensation de la phase
 fft_results = [raw_fft_results(1:Q).*phase'; raw_fft_results(Q+1:2*Q).*phase(end:-1:1)'];
-plot(Fs/Q*(-Q:(Q)-1), abs(fftshift(fft_results)));
+plot(Fs/Q*(-Q:(Q)-1), 20*log(abs(fftshift(fft_results))));
 xlabel('f [Hz]');
 ylabel('|Y(f)|');
 
@@ -112,7 +111,7 @@ ylabel('y(t)'); % signal convoluted
 % fft of the convoluted signal
 fft_signal_conv_simu = fft(signal_conv_simu);
 figure
-plot(Fs/Q*(0:(Q)-1), abs(fftshift(fft_signal_conv_simu(1:Q))));
+plot(Fs/Q*(0:(Q)-1), 20*log(abs(fftshift(fft_signal_conv_simu(1:Q)))));
 xlabel('f [Hz]');  
 ylabel('|Y(f)|');
 
