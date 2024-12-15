@@ -2,7 +2,7 @@ clear; close all;
 addpath("../step4/");
 
 % --- noise parameters ---
-SNRs = -50:1:-35;
+SNRs = -50:5:0;
 number_of_repetitions = 1;
 % -------------------------
 
@@ -16,10 +16,11 @@ Fs = 48000; % [Hz]
 T = 10/(2*delta_f);
 
 % relative delay duration :
-relative_delay_duration = 0.5;
+relative_delay_duration = 0;
 
 % message parameters, using a big parameter here alows us to use only 1 repetition as this is an ergodic process.
-number_of_bytes = 100000;
+% but it is not always the most computationally efficient way to do it.
+number_of_bytes = 100;
 % ---------------------------------------------------------------------------
 
 
