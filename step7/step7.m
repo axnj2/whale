@@ -1,9 +1,9 @@
-clear; close all;
+clear;
 addpath("../step4/");
-
+tic
 % --- noise parameters ---
 SNRs = -50:5:0;
-number_of_repetitions = 1;
+number_of_repetitions = 10;
 % -------------------------
 
 % ---------------------- define the constants -------------------------------
@@ -15,12 +15,11 @@ Fs = 48000; % [Hz]
 % delta_f = 1/(2*T_min) =>
 T = 10/(2*delta_f);
 
-% relative delay duration :
 relative_delay_duration = 0;
 
 % message parameters, using a big parameter here alows us to use only 1 repetition as this is an ergodic process.
 % but it is not always the most computationally efficient way to do it.
-number_of_bytes = 100;
+number_of_bytes = 1000;
 % ---------------------------------------------------------------------------
 
 
@@ -38,9 +37,12 @@ noiseless_signal_with_random_phase = zeros(1, T*Fs*relative_delay_duration*numbe
 chunk_message_length = (T*Fs*relative_delay_duration) + (T*Fs);
 byte_message_length = 2*chunk_message_length;
 
+% encode the message
 for i = 1:length(original_message)
+    % without random phase
     byte_signal_without_random_phase = encode_byte(original_message(i), f0, delta_f, M, T, Fs, relative_delay_duration, 0);
     noiseless_signal_without_random_phase(((i-1)*byte_message_length + 1): i*byte_message_length) = byte_signal_without_random_phase;
+    % same thing but with random phase
     byte_signal_with_random_phase = encode_byte(original_message(i), f0, delta_f, M, T, Fs, relative_delay_duration, 1);
     noiseless_signal_with_random_phase(((i-1)*byte_message_length + 1): i*byte_message_length) = byte_signal_with_random_phase;
 end
@@ -83,6 +85,8 @@ end
 error_rates_per_SNR_non_coherent_random_phase = zeros(1, length(SNRs));
 error_rates_per_SNR_coherent_random_phase = zeros(1, length(SNRs));
 
+display("intialization time : ")
+toc
 tic
 c = parcluster;
 parfor (k = 1:length(SNRs), c)
@@ -116,7 +120,10 @@ parfor (k = 1:length(SNRs), c)
     error_rates_per_SNR_non_coherent_random_phase(k) = total_non_coherent_errors_random_phase/(number_of_repetitions*number_of_bytes);
     error_rates_per_SNR_coherent_random_phase(k) = total_coherent_errors_random_phase/(number_of_repetitions*number_of_bytes);
 end
+disp("simulation time : ")
 toc
+
+figure
 hold on
 %plot(SNRs, log10(error_rates_per_SNR_non_coherent), 'DisplayName', "non-coherent decoding")
 %plot(SNRs, log10(error_rates_per_SNR_coherent), 'DisplayName', "coherent decoding")
