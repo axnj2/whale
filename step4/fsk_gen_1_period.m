@@ -22,6 +22,6 @@ function [t, signal] = fsk_gen_1_period(f0, detla_f, M, T, Fs, number, random_ph
 
     signal = cos(2*pi*(f0 + double(number)*detla_f)*t + randn(1,1)*pi*random_phase);
 
-    % normalize the signal
+    % normalize the signal (probably not necessary)
     signal = signal/max(abs(signal));
 end
