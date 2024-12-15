@@ -8,7 +8,8 @@ load("parameters.mat", "f0", "delta_f", "M", "T", "Fs");
 %window_size = floor(window_time*Fs);
 %window_size = 100;
 
-visualise_signal_spectrum(T, Fs, signal);
+visualise_signal_spectrum(T, Fs, signal, true);
+
 
 
 

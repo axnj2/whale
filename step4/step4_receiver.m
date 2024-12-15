@@ -42,7 +42,7 @@ if record_sound
 
     %store recorded message
     recorded_message = [getaudiodata(recorder)];
-    visualise_signal_spectrum(T, Fs, recorded_message);
+    visualise_signal_spectrum(T, Fs, recorded_message, true, true);
 end
 
 function [t0_index, window_size] = find_start_of_message(recorded_message, f0, delta_f, M, T, Fs)
