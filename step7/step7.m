@@ -34,7 +34,7 @@ noiseless_signal_without_random_phase = zeros(1, T*Fs*relative_delay_duration*nu
 noiseless_signal_with_random_phase = zeros(1, T*Fs*relative_delay_duration*number_of_chunks ...
                                             + T*Fs*number_of_chunks );
 
-chunk_message_length = (T*Fs/2) + (T*Fs);
+chunk_message_length = (T*Fs*relative_delay_duration) + (T*Fs);
 byte_message_length = 2*chunk_message_length;
 
 for i = 1:length(original_message)
