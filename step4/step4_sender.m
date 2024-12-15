@@ -4,17 +4,6 @@ clc; clear; close all hidden;
 % switch between playing sound and saving to file for testing
 play_sound = false;
 
-% define the constants
-M = 16;
-f0 = 8000; % [Hz]
-delta_f = 400; % [Hz]
-Fs = 48000; % [Hz]
-
-% delta_f = 1/(2*T) =>
-T = 8/(2*delta_f);
-
-Delay_before_start = 1000 + 11; % [samples]
-
 message_type = "image"; % "text" or "image"
 
 if message_type == "text"
@@ -26,19 +15,32 @@ elseif message_type == "image"
     % convert the image to a message
     message = encode_image_to_uint8(image);
 end
-%message = 'h';
+
+
+% define the constants
+M = 16;
+f0 = 8000; % [Hz]
+delta_f = 400; % [Hz]
+Fs = 48000; % [Hz]
+
+% delta_f = 1/(2*T) =>
+T = 8/(2*delta_f);
+
+Delay_before_start = 1000 + 11; % [samples]
+
+
+
+
 
 
 % encode the message
-% transform the message into decimal
+% transform the message into decimal (does not change anything if it is already in decimal)
 message_decimal = uint8(message);
-% we have each char as a 8 bit uint
-
-delay_signal = zeros(1, round(T*Fs)); % of time T
 
 number_of_chunks = length(message_decimal)*2;
 
-% add preamble to the signal for 1 period at f0
+% add preamble to the signal for 1 period at f0 
+% (used in the receiver to find the start of the message)
 [~, preamble] = fsk_gen_1_period(f0, delta_f, M, T, Fs, 0);
 final_signal = [preamble, zeros(1, round(T*Fs))];
 
