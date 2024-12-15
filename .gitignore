@@ -4,3 +4,6 @@ Utils/
 tracked_files.json
 
 .vscode/
+
+parameters.mat
+step_4_output.wav
