@@ -2,7 +2,7 @@ clc; clear; close all hidden;
 
 % choose between recording sound and loading from file
 record_sound = false;
-message_type = "image"; % "text" or "image"
+message_type = "text"; % "text" or "image"
 
 if record_sound
     % define the constants
@@ -26,7 +26,8 @@ if record_sound
 else
     % Load the data and parameters
     recorded_message = audioread("step_4_output.wav");
-    load("parameters.mat", "f0", "delta_f", "M", "T", "Fs", "number_of_chunks", "message_type");
+    load("parameters.mat", "f0", "delta_f", "M", "T", "Fs", "number_of_chunks", "message_type",...
+           "relative_delay_duration");
 end
 
 if number_of_chunks < 0
@@ -58,7 +59,12 @@ function [t0_index, window_size] = find_start_of_message(recorded_message, f0, d
         fft_window = fft(window);
         
         % frequencies are given by : Fs/(window_size)*(-Q:(Q)-1)
+        % only works for certain combinaison of f0 and window_time.
         [~, f0_index] = find(Fs/(window_size)*(0:window_size/2) == f0);
+        if isempty(f0_index)
+            error("find_start_of_message() : f0 is not in the fft frequencies. another combinaison of f0 and window_time needs ot be used");
+        end
+
         f0_powers(i) = abs(fft_window(f0_index));
         if i > 21
             if f0_powers(i) > 20*mean(f0_powers(i-21:i-1))
@@ -66,7 +72,7 @@ function [t0_index, window_size] = find_start_of_message(recorded_message, f0, d
                 break
             end
         else
-            if f0_powers(i) > 1e-1 % FIXME :  might not work for recorded sound, has been tested with no issue.
+            if f0_powers(i) > 1e-1 % might not work for recorded sound, has been tested with no issue.
                 t0_index = (i-1)*window_size + window_size/2 +2;
                 break
             end
@@ -84,10 +90,11 @@ end
 [start_of_message, incertitude_window_size] = find_start_of_message(recorded_message, f0, delta_f, M, T, Fs);
 
 %decode 4 bites of the message :
+non_coherent = true;
 chunks_value = zeros(1, number_of_chunks);
 for i = 1:number_of_chunks
-    chunks_value(i) = fsk_decode_1_chunk(get_chunk(recorded_message, i, start_of_message, T, Fs, incertitude_window_size),...
-     f0, delta_f, M, T-10/f0, Fs, true);
+    chunks_value(i) = fsk_decode_1_chunk(get_chunk(recorded_message, i, start_of_message, T, Fs, incertitude_window_size, relative_delay_duration),...
+     f0, delta_f, M, T-incertitude_window_size/Fs, Fs, non_coherent);
 end
 
 bytes_of_message = zeros(1, number_of_chunks/2);
@@ -102,13 +109,15 @@ if message_type == "text"
         message(i) = char(bytes_of_message(i));
     end
     disp(message);
-else
+elseif message_type == "image"
     received_image = decode_image_from_uint8(bytes_of_message);
     imagesc(received_image);
 
     %calculate error rate : 
     perfect_image = format_image(imread('image.jpg'));
     error_rate = sum(received_image ~= perfect_image, 'all')/(size(received_image,1)*size(received_image,2));
+else
+    error("message_type not supported or not defined");
 end
 
 
