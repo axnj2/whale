@@ -11,6 +11,7 @@ if message_type == "text"
 elseif message_type == "image"
     raw_image = imread('image.jpg');
     image = format_image(raw_image);
+    size(image)
     imagesc(image);
     % convert the image to a message
     message = encode_image_to_uint8(image);
@@ -20,7 +21,7 @@ end
 % define the constants
 M = 16;
 f0 = 8000; % [Hz]
-delta_f = 400; % [Hz]
+delta_f = 100; % [Hz]
 Fs = 48000; % [Hz]
 
 % delta_f = 1/T =>

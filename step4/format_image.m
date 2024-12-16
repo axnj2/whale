@@ -1,8 +1,8 @@
 function image = format_image(raw_image)
     raw_image = rgb2gray(raw_image);
     
-    % resize the image to a max dimension of 50 pixels
-    max_dimension = 64;
+    % resize the image to a max dimension of 64 pixels
+    max_dimension = 255;
     [rows, cols] = size(raw_image);
     if rows > cols
         raw_image = imresize(raw_image, [max_dimension NaN]);

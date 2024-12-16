@@ -1,14 +1,14 @@
 clc; clear; close all hidden;
 
 % choose between recording sound and loading from file
-record_sound = false;
+record_sound = true;
 message_type = "image"; % "text" or "image"
 
 if record_sound
     % define the constants
     M = 16;
     f0 = 8000; % [Hz]
-    delta_f = 400; % [Hz]
+    delta_f = 100; % [Hz]
     Fs = 48000; % [Hz]
     T_min = 1/delta_f;
     T = T_min + 4/f0;
@@ -20,8 +20,8 @@ if record_sound
         message_length = 25; % Caution this needs to be defined manually
         number_of_chunks = 2*message_length;
     elseif message_type == "image"
-        image_height = 48; % Caution this needs to be defined manually
-        image_width = 64; % Caution this needs to be defined manually
+        image_height = 192; % Caution this needs to be defined manually
+        image_width = 255; % Caution this needs to be defined manually
         number_of_chunks = (image_height * image_width)/4 + 4
     end
 
@@ -46,7 +46,7 @@ if record_sound
 
     %store recorded message
     recorded_message = [getaudiodata(recorder)];
-    visualise_signal_spectrum(T, Fs, recorded_message, true, true);
+    %visualise_signal_spectrum(T, Fs, recorded_message, true, true);
 end
 
 function [t0_index, window_size] = find_start_of_message(recorded_message, f0, delta_f, M, T, Fs)
@@ -129,7 +129,7 @@ elseif message_type == "image"
 
     %calculate error rate : 
     perfect_image = format_image(imread('image.jpg'));
-    error_rate = sum(received_image ~= perfect_image, 'all')/(size(received_image,1)*size(received_image,2));
+    error_rate = sum(received_image ~= perfect_image, 'all')/(size(received_image,1)*size(received_image,2))
 else
     error("message_type not supported or not defined");
 end
