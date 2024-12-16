@@ -1,14 +1,14 @@
 clc; clear; close all hidden;
 
 % choose between recording sound and loading from file
-record_sound = true;
+record_sound = false;
 message_type = "image"; % "text" or "image"
 
 if record_sound
     % define the constants
     M = 16;
     f0 = 8000; % [Hz]
-    delta_f = 100; % [Hz]
+    delta_f = 200; % [Hz]
     Fs = 48000; % [Hz]
     T_min = 1/delta_f;
     T = T_min + 4/f0;
@@ -30,7 +30,7 @@ else
     % Load the data and parameters
     recorded_message = audioread("step_4_output.wav");
     load("parameters.mat", "f0", "delta_f", "M", "T", "T_min", "Fs", "number_of_chunks", "message_type",...
-           "relative_delay_duration");
+           "relative_delay_duration", "image_height", "image_width");
 end
 
 if number_of_chunks < 0
@@ -42,7 +42,7 @@ if record_sound
     recorder = audiorecorder(Fs,24,1);
     record(recorder,5+ number_of_chunks*T*2);
 
-    pause(6+ number_of_chunks*T*2);
+    pause(20 + number_of_chunks*T);
 
     %store recorded message
     recorded_message = [getaudiodata(recorder)];
@@ -75,7 +75,7 @@ function [t0_index, window_size] = find_start_of_message(recorded_message, f0, d
         
         f0_powers(i) = abs(projection);
         if i > 21
-            if f0_powers(i) > 20*mean(f0_powers(i-21:i-1))
+            if f0_powers(i) > 15*mean(f0_powers(i-21:i-1))
                 t0_index = (i-1)*window_size + window_size/2 ;
                 break
             end
@@ -124,7 +124,11 @@ if message_type == "text"
     end
     disp(message);
 elseif message_type == "image"
-    received_image = decode_image_from_uint8(bytes_of_message);
+    % make the dimensions wrong on purpose : 
+    bytes_of_message(1) = 0;
+    bytes_of_message(2) = 0;
+
+    received_image = decode_image_from_uint8(bytes_of_message, image_height, image_width);
     imagesc(received_image);
 
     %calculate error rate : 

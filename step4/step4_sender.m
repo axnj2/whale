@@ -11,7 +11,8 @@ if message_type == "text"
 elseif message_type == "image"
     raw_image = imread('image.jpg');
     image = format_image(raw_image);
-    size(image)
+    image_height = size(image, 1)
+    image_width = size(image, 2)
     imagesc(image);
     % convert the image to a message
     message = encode_image_to_uint8(image);
@@ -21,7 +22,7 @@ end
 % define the constants
 M = 16;
 f0 = 8000; % [Hz]
-delta_f = 100; % [Hz]
+delta_f = 200; % [Hz]
 Fs = 48000; % [Hz]
 
 % delta_f = 1/T =>
@@ -94,7 +95,7 @@ else
     final_signal = [zeros(1, Delay_before_start), final_signal];
     audiowrite('step_4_output.wav', final_signal, Fs);
     save("parameters.mat", "f0", "delta_f", "M", "T", "T_min", "Fs", "number_of_chunks", "message_type",...
-                "relative_delay_duration");
+                "relative_delay_duration", "image_width", "image_height");
 end
 
 % spectral power density
