@@ -65,13 +65,13 @@ function [t0_index, window_size] = find_start_of_message(recorded_message, f0, d
     window_size = floor(window_time*Fs);
 
     time_vector = (0:length(window_size)-1)/Fs;
-    base_vector = cos(2*pi*f0*time_vector);
+    base_vector = exp(1i*2*pi*f0*time_vector);
 
     f0_powers = zeros(1, floor(length(recorded_message)/window_size));
     % loop until we find a jump in the fft for the f0 frequency
     for i = 1:floor(length(recorded_message)/window_size)-1
         window = recorded_message((i-1)*window_size+1:i*window_size);
-        projection = sum(window .* base_vector);
+        projection = abs(sum(window .* base_vector));
         
         f0_powers(i) = abs(projection);
         if i > 21
@@ -96,7 +96,8 @@ end
 
 
 [start_of_message, incertitude_window_size] = find_start_of_message(recorded_message, f0, delta_f, M, T, Fs);
-incertitude_window_size = 4 * incertitude_window_size 
+start_of_message
+incertitude_window_size = 4 * incertitude_window_size ;
 
 % validate assumption used in get_chunk and fsk_decode_1_chunk (in the loop below)
 if T ~= 1/delta_f + 4/f0 || T_min ~= 1/delta_f
@@ -124,10 +125,6 @@ if message_type == "text"
     end
     disp(message);
 elseif message_type == "image"
-    % make the dimensions wrong on purpose : 
-    bytes_of_message(1) = 0;
-    bytes_of_message(2) = 0;
-
     received_image = decode_image_from_uint8(bytes_of_message, image_height, image_width);
     imagesc(received_image);
 
