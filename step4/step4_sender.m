@@ -30,7 +30,7 @@ T = T_min + 4/f0; % [s] adds a small margin to allow for truncating at the recei
 
 % check if the isapprox() function is available
 try
-    isapprox(1, 1)
+    isapprox(1, 1);
 catch err
     if err.identifier == "MATLAB:UndefinedFunction"
         warning('foo:bar',"upgrade to MATLAB R2024b or later to use the isapprox() function\n this script will use exact comparison instead");
