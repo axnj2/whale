@@ -1,4 +1,5 @@
 clc; clear all; close all hidden
+addpath("../")
 
 % grille de fréquences
 % on choisit le temps d'enregistrement par rapport au nombre de fréquences échantillonées
@@ -20,6 +21,7 @@ phase = 2*randi([0,1], 1, Q) - 1;
 
 % max time
 T = 1/freq_spacing; % freq_spacing = 1/T
+T
 
 % time vector
 t = 0:1/Fs:T-1/Fs;
@@ -37,6 +39,7 @@ signal = signal/max(abs(signal));
 
 % --------- Emission et enregistrement du signal ----------
 player = audioplayer(repmat(signal, 1, 10), Fs, 24); 
+pause(2);
 play(player);
 
 recorder = audiorecorder(Fs, 24, 1); 
@@ -46,30 +49,37 @@ pause(T+1); % pour être sûr que la mesure est finie
 
 x_recorded = [getaudiodata(recorder)];
 
-raw_fft_results = fft(x_recorded);
+Y_f = fft(x_recorded);
 % ---------------------------------------------------------
 
 
 
-figure;
-plot(Fs/Q*(-Q:(Q)-1), 20*log(abs(raw_fft_results(1:2*Q))));
-xlabel('f [Hz]');
-ylabel('|Y(f)|');
-
-figure;
 % compensation de la phase
-fft_results = [raw_fft_results(1:Q).*phase'; raw_fft_results(Q+1:2*Q).*phase(end:-1:1)'];
-plot(Fs/Q*(-Q:(Q)-1), 20*log(abs(fftshift(fft_results))));
-xlabel('f [Hz]');
-ylabel('|Y(f)|');
+compensated_Y_f = [Y_f(1:Q).*phase'; Y_f(Q+1:2*Q).*phase(end:-1:1)'];
+H_f = compensated_Y_f.*(2/T);
 
-
-reponse_impulsionnelle = ifft(fft_results);
 figure;
-plot(t, reponse_impulsionnelle);
+plot(Fs/Q*(-Q:(Q)-1), 20*log(abs(fftshift(compensated_Y_f))));
+xlabel('f [Hz]');
+ylabel('|Y(f)| [dB]'); 
+
+figure;
+plot(Fs/Q*(-Q:(Q)-1), 20*log(abs(fftshift(H_f))));   
+xlabel('f [Hz]');
+ylabel('|H(f)| [dB]'); % réponse en fréquence 
+
+y_t = ifft(Y_f);
+h_t = ifft(H_f);
+
+figure;
+plot(t, y_t);
 xlabel('t [s]');
 ylabel('y(t)'); % réponse impulsionnelle
 
+figure;
+plot(t, h_t);
+xlabel('t [s]');
+ylabel('h(t)'); % réponse impulsionnelle
 
 % feedback : on peut aussi le faire en simulation pour valider que le code fonctionne correctement.
 
@@ -83,47 +93,64 @@ function [ht] = h(Fs)
     end
     delay = 0.001; %s
 
-    alpha_r = 0.4;
-    alpha_d = 0.7;
+    alpha_r = 0.5;
+    alpha_d = 0.9;
     d_m = 1; %m
-    d_d = 0.05; %m
+    d_d = 0.15; %m
     v = 340; %m/s
 
     tau_r = 2*d_m/v;
+    tau_r
     tau_d = d_d/v;
+    tau_d
 
     t = 0:1/Fs:(delay + max(tau_d, tau_r) + 0.001);
 
     ht = alpha_r*rectangularPulse((t - tau_r - delay)*Fs ) + alpha_d*rectangularPulse((t - tau_d - delay )*Fs);
 end
 
-% show h(t)
-figure
-plot(h(Fs));
 
 % convolute signal with h(t)
-signal_conv_simu = conv(transpose(signal), h(Fs), 'same');
+y_t_sim = conv(transpose(signal), h(Fs), 'same');
+
 figure
-plot(t, signal_conv_simu);
+plot(t, y_t_sim);
 xlabel('t [s]');
 ylabel('y(t)'); % signal convoluted
 
+
 % fft of the convoluted signal
-fft_signal_conv_simu = fft(signal_conv_simu);
+Y_f_sim = fft(y_t_sim);
+
 figure
-plot(Fs/Q*(0:(Q)-1), 20*log(abs(fftshift(fft_signal_conv_simu(1:Q)))));
+plot(Fs/Q*(0:(Q)-1), 20*log(abs(fftshift(Y_f_sim(1:Q)))));
 xlabel('f [Hz]');  
 ylabel('|Y(f)|');
 
 % compensation de la phase
-fft_signal_conv_phase_comp_simu = [fft_signal_conv_simu(1:Q).*phase'; fft_signal_conv_simu(Q+1:2*Q).*phase(end:-1:1)'];
+compensated_Y_f_sim = [Y_f_sim(1:Q).*phase'; Y_f_sim(Q+1:2*Q).*phase(end:-1:1)'];
+H_f_sim = compensated_Y_f_sim.*(2/T);
 
-reponse_impulsionnelle_simu = ifft(fft_signal_conv_phase_comp_simu);
 figure;
-reponse_impulsionnelle_simu_repeted = repmat(reponse_impulsionnelle_simu, 1, 2);
-plot(t, reponse_impulsionnelle_simu_repeted(length(t)/2:3*length(t)/2-1));
+plot(Fs/Q*(0:(Q)-1), 20*log(abs(fftshift(H_f_sim(1:Q)))));
+xlabel('f [Hz]');
+ylabel('|H(f)|'); % réponse en fréquence
+
+y_t_com = ifft(compensated_Y_f_sim);
+h_t_com = ifft(H_f_sim);
+
+y_t_com_repeted= repmat(y_t_com, 1, 2);
+h_t_com_repeted= repmat(h_t_com, 1, 2);
+
+%[hits, threshold] = CFAR(h_t_com, 10, 2,60);
+figure;
+plot(t, y_t_com_repeted(length(t)/2:3*length(t)/2-1));
 xlabel('t [s]');   
 ylabel('y(t)'); % réponse impulsionnelle
+figure;
+plot(t, abs(h_t_com_repeted(length(t)/2:3*length(t)/2-1)));
+xlabel('t [s]');
+ylabel('h(t)'); % réponse impulsionnelle
 
 
 % ---------------------------------------------------------
