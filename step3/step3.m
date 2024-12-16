@@ -21,7 +21,6 @@ phase = 2*randi([0,1], 1, Q) - 1;
 
 % max time
 T = 1/freq_spacing; % freq_spacing = 1/T
-T
 
 % time vector
 t = 0:1/Fs:T-1/Fs;
@@ -99,11 +98,8 @@ function [ht] = h(Fs)
     d_d = 0.15; %m
     v = 340; %m/s
 
-    tau_r = 2*d_m/v;
-    tau_r
     tau_d = d_d/v;
-    tau_d
-
+    tau_r = tau_d + 2*d_m/v;
     t = 0:1/Fs:(delay + max(tau_d, tau_r) + 0.001);
 
     ht = alpha_r*rectangularPulse((t - tau_r - delay)*Fs ) + alpha_d*rectangularPulse((t - tau_d - delay )*Fs);
