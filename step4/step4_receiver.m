@@ -10,7 +10,8 @@ if record_sound
     f0 = 8000; % [Hz]
     delta_f = 400; % [Hz]
     Fs = 48000; % [Hz]
-    T = 8/(2*delta_f);
+    T_min = 1/delta_f;
+    T = T_min + 1/f0;
 
     %lengh of the message
     if message_type == "text"
@@ -26,7 +27,7 @@ if record_sound
 else
     % Load the data and parameters
     recorded_message = audioread("step_4_output.wav");
-    load("parameters.mat", "f0", "delta_f", "M", "T", "Fs", "number_of_chunks", "message_type",...
+    load("parameters.mat", "f0", "delta_f", "M", "T", "T_min", "Fs", "number_of_chunks", "message_type",...
            "relative_delay_duration");
 end
 
@@ -97,8 +98,8 @@ start_of_message
 incertitude_window_size
 
 % validate assumption used in get_chunk and fsk_decode_1_chunk (in the loop below)
-if T ~= 1/delta_f + 1/f0
-    error("T is not equal to 1/delta_f + 1/f0");
+if T ~= 1/delta_f + 1/f0 || T_min ~= 1/delta_f
+    error("T is not equal to 1/delta_f + 1/f0 = T_min + 1/f0");
 end
 
 %decode 4 bites of the message :
@@ -106,7 +107,7 @@ non_coherent = true;
 chunks_value = zeros(1, number_of_chunks);
 for i = 1:number_of_chunks
     chunks_value(i) = fsk_decode_1_chunk(get_chunk(recorded_message, i, start_of_message, T, Fs, incertitude_window_size, relative_delay_duration),...
-     f0, delta_f, M, 1/delta_f, Fs, non_coherent);
+     f0, delta_f, M, 1/f0, Fs, non_coherent);
 end
 
 bytes_of_message = zeros(1, number_of_chunks/2);
