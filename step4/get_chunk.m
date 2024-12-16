@@ -14,8 +14,8 @@ function [chunk_signal] = get_chunk(recorded_message, chunk_index, start_of_mess
 
     length_of_chunk = floor(chunck_duration*Fs);
 
-    chunk_signal = recorded_message((start_of_message + 1 +  (chunk_index-1)*(1+relative_delay_duration)*length_of_chunk) + (incertitude_window_size/2) :...
-                                    (start_of_message     + ((chunk_index-1)*(1+relative_delay_duration)+1)*length_of_chunk)-incertitude_window_size/2);
+    chunk_signal = recorded_message((start_of_message + 1 +  (chunk_index-1)*(1+relative_delay_duration)*length_of_chunk)    + incertitude_window_size/2 :...
+                                    (start_of_message     + ((chunk_index-1)*(1+relative_delay_duration)+1)*length_of_chunk) - incertitude_window_size/2);
     %takes into account the incertitude on the intial time
 
 end
