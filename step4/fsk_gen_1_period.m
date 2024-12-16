@@ -1,4 +1,4 @@
-function [t, signal] = fsk_gen_1_period(f0, detla_f, M, T, Fs, number, random_phase)
+function [t, signal, last_phase] = fsk_gen_1_period(f0, detla_f, M, T, Fs, number, use_random_phase, previous_phase)
     % idée d'amélioration : utiliser un code gray pour pouvoir corriger les erreurs plus facilement
     arguments
         f0 double
@@ -7,7 +7,8 @@ function [t, signal] = fsk_gen_1_period(f0, detla_f, M, T, Fs, number, random_ph
         T double
         Fs double
         number int8
-        random_phase double = 0
+        use_random_phase double = 0
+        previous_phase double = 0
     end
 
     if (number < 0 || number > M-1)
@@ -19,9 +20,11 @@ function [t, signal] = fsk_gen_1_period(f0, detla_f, M, T, Fs, number, random_ph
     t = t(1:end-1); % remove the last element to have the correct length (starts at 0)
     
     % generate the signal
+    random_phase = randn(1,1)*pi*use_random_phase;
 
-    signal = cos(2*pi*(f0 + double(number)*detla_f)*t + randn(1,1)*pi*random_phase);
+    signal = cos(2*pi*(f0 + double(number)*detla_f)*t + random_phase + previous_phase);
 
+    last_phase = mod(2*pi*(f0 + double(number)*detla_f)*t(end) + random_phase + previous_phase, 2*pi);
     % normalize the signal (probably not necessary)
     signal = signal/max(abs(signal));
 end

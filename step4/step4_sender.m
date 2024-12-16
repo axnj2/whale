@@ -2,7 +2,7 @@ clc; clear; close all hidden;
 
 
 % switch between playing sound and saving to file for testing
-play_sound = false;
+play_sound = true;
 
 message_type = "image"; % "text" or "image"
 
@@ -18,8 +18,13 @@ elseif message_type == "image"
     message = encode_image_to_uint8(image);
 end
 
-
 % define the constants
+Delay_before_start = 100; % [samples]
+
+% delay between each chunk as a fraction of T
+relative_delay_duration = 0;
+
+
 M = 16;
 f0 = 8000; % [Hz]
 delta_f = 200; % [Hz]
@@ -57,14 +62,6 @@ end
 
 
 
-Delay_before_start = 10; % [samples]
-
-% delay between each chunk as a fraction of T
-relative_delay_duration = 0;
-
-
-
-
 
 % encode the message
 % transform the message into decimal (does not change anything if it is already in decimal)
@@ -77,8 +74,9 @@ number_of_chunks = length(message_decimal)*2;
 [~, preamble] = fsk_gen_1_period(f0, delta_f, M, T, Fs, 0);
 final_signal = [preamble, zeros(1, round(T*Fs))];
 
+previous_phase = 0;
 for i = 1:number_of_chunks/2
-    byte_signal = encode_byte(message_decimal(i), f0, delta_f, M, T, Fs, relative_delay_duration);
+    [byte_signal, previous_phase] = encode_byte(message_decimal(i), f0, delta_f, M, T, Fs, relative_delay_duration, previous_phase);
     final_signal = [final_signal, byte_signal];
 end
 
