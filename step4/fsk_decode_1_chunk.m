@@ -20,6 +20,26 @@ function [decoded_message] = fsk_decode_1_chunk(signal, f0, delta_f, M, T, Fs, n
             1, floor(T*Fs), dimensions(1), dimensions(2));    
     end
 
+    % check if the isapprox() function is available
+    try
+        isapprox(1, 1);
+    catch err
+        % if err.identifier == "MATLAB:UndefinedFunction"
+        %     warning('foo:bar',"upgrade to MATLAB R2024b or later to use the isapprox() function\n this script will use exact comparison instead");
+        % end
+        isapprox = @(a, b) a == b;
+        clear err;
+    end
+
+    % check the ortogonality conditions
+    if non_coherent
+        if ~isapprox(mod(round(f0*2*T, 7),  1), 0)
+            error("fsk_decode_1_chunk : f0 does not meet the orthogonality requirements. f0 = %g, T = %g, f0*2*T = %g", f0, T, f0*2*T);
+        elseif ~isapprox(mod(round(delta_f*T, 7), 1), 0)
+            error("fsk_decode_1_chunk : delta_f does not meet the orthogonality requirements. delta_f = %g, T = %g, delta_f*T = %g", delta_f, T, delta_f*T);
+        end
+    end
+
     % projection of the signal on the different base functions
     projections = zeros(1, M);
     for i = 0:M-1

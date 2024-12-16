@@ -4,7 +4,7 @@ clc; clear; close all hidden;
 % switch between playing sound and saving to file for testing
 play_sound = false;
 
-message_type = "text"; % "text" or "image"
+message_type = "image"; % "text" or "image"
 
 if message_type == "text"
     message = 'hello sound communication';
@@ -24,38 +24,38 @@ delta_f = 400; % [Hz]
 Fs = 48000; % [Hz]
 
 % delta_f = 1/T =>
-T = 2/(delta_f); % [s]
+T_min = 1/delta_f; % [s]
+T = T_min + 1/f0; % [s] adds a small margin to allow for truncating at the receiver
 
 % check if the isapprox() function is available
 try
     isapprox(1, 1)
-catch error
-    if error.identifier == "MATLAB:UndefinedFunction"
+catch err
+    if err.identifier == "MATLAB:UndefinedFunction"
         warning('foo:bar',"upgrade to MATLAB R2024b or later to use the isapprox() function\n this script will use exact comparison instead");
     end
     isapprox = @(a, b) a == b;
+    clear err;
 end
 
 % check the orthogonality requirements of the signal for a non-coherent receiver
 % f0 = k/(2*T) where k is an integer
 % delta_f = k/(T) where k is an integer
-if ~isapprox(mod(round(f0*2*T, 3), 1),  0)
+if ~isapprox(mod(round(f0*2*T_min, 7), 1),  0)
     error("f0 does not meet the orthogonality requirements");
-elseif ~isapprox(mod(round(delta_f*T, 3), 1), 0)
+elseif ~isapprox(mod(round(delta_f*T_min, 7), 1), 0)
     error("delta_f does not meet the orthogonality requirements");
 end
 
 % check that the signal duration is long enough to allow for some trunkating at the receiver
 % as the detection of the start of the message is imperfect
-T_truncated = T - (20/f0);
-% FIXME : come back to this once the receiver is implemented better
-if isapprox(T_truncated, 0) || ~isapprox(mod(round(f0*2*T_truncated), 1), 0 ) || ~isapprox(mod(round(delta_f*T_truncated), 1), 0)
+if T < T_min - 1/f0
     error("T is too short to allow for truncating at the receiver");
 end
 
 
 
-Delay_before_start = 10000 + 11; % [samples]
+Delay_before_start = 10; % [samples]
 
 % delay between each chunk as a fraction of T
 relative_delay_duration = 0;

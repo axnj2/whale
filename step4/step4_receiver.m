@@ -47,25 +47,30 @@ if record_sound
 end
 
 function [t0_index, window_size] = find_start_of_message(recorded_message, f0, delta_f, M, T, Fs)
+    arguments
+        recorded_message (1, :) double % changes the shape of the recorded message to a row vector
+        f0 double
+        delta_f double
+        M double
+        T double
+        Fs double
+    end
+
     % find the start of the message
     % the message starts with a f0 frequency for T seconds
-    window_time = 10/(f0);
+    window_time = 1/(f0);
     window_size = floor(window_time*Fs);
+
+    time_vector = (0:length(window_size)-1)/Fs;
+    base_vector = cos(2*pi*f0*time_vector);
 
     f0_powers = zeros(1, floor(length(recorded_message)/window_size));
     % loop until we find a jump in the fft for the f0 frequency
     for i = 1:floor(length(recorded_message)/window_size)-1
         window = recorded_message((i-1)*window_size+1:i*window_size);
-        fft_window = fft(window);
+        projection = sum(window .* base_vector);
         
-        % frequencies are given by : Fs/(window_size)*(-Q:(Q)-1)
-        % only works for certain combinaison of f0 and window_time.
-        [~, f0_index] = find(Fs/(window_size)*(0:window_size/2) == f0);
-        if isempty(f0_index)
-            error("find_start_of_message() : f0 is not in the fft frequencies. another combinaison of f0 and window_time needs ot be used");
-        end
-
-        f0_powers(i) = abs(fft_window(f0_index));
+        f0_powers(i) = abs(projection);
         if i > 21
             if f0_powers(i) > 20*mean(f0_powers(i-21:i-1))
                 t0_index = (i-1)*window_size + window_size/2 ;
@@ -88,13 +93,20 @@ end
 
 
 [start_of_message, incertitude_window_size] = find_start_of_message(recorded_message, f0, delta_f, M, T, Fs);
+start_of_message
+incertitude_window_size
+
+% validate assumption used in get_chunk and fsk_decode_1_chunk (in the loop below)
+if T ~= 1/delta_f + 1/f0
+    error("T is not equal to 1/delta_f + 1/f0");
+end
 
 %decode 4 bites of the message :
 non_coherent = true;
 chunks_value = zeros(1, number_of_chunks);
 for i = 1:number_of_chunks
     chunks_value(i) = fsk_decode_1_chunk(get_chunk(recorded_message, i, start_of_message, T, Fs, incertitude_window_size, relative_delay_duration),...
-     f0, delta_f, M, T-incertitude_window_size/Fs, Fs, non_coherent);
+     f0, delta_f, M, 1/delta_f, Fs, non_coherent);
 end
 
 bytes_of_message = zeros(1, number_of_chunks/2);
