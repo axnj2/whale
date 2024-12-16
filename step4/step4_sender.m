@@ -85,7 +85,7 @@ end
 %normalize the signal
 final_signal = final_signal/max(abs(final_signal));
 
-
+message_duration = length(final_signal)/Fs
 if play_sound
     player = audioplayer(final_signal, Fs, 24); 
     play(player);   
