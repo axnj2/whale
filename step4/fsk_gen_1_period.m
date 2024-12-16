@@ -6,7 +6,7 @@ function [t, signal, last_phase] = fsk_gen_1_period(f0, detla_f, M, T, Fs, numbe
         M double
         T double
         Fs double
-        number int8
+        number int16
         use_random_phase double = 0
         previous_phase double = 0
     end

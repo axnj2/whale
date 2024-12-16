@@ -10,7 +10,7 @@ function [decoded_message] = fsk_decode_1_chunk(signal, f0, delta_f, M, T, Fs, n
     end
 
     arguments (Output) 
-        decoded_message uint8
+        decoded_message uint16
     end
     
     %verify size of entered signal
@@ -61,5 +61,5 @@ function [decoded_message] = fsk_decode_1_chunk(signal, f0, delta_f, M, T, Fs, n
     % find the maximum projection
     [~, max_index] = max(projections);
 
-    decoded_message = uint8(max_index - 1);
+    decoded_message = uint16(max_index - 1);
 end
