@@ -7,11 +7,11 @@ function visualise_signal_spectrum(T, Fs, signal, only_positive_frequencies, plo
         plot_time_signal logical = false
     end
 
-    window_size = T*Fs;
+    window_size = round(T*Fs, 3);
     number_of_windows = floor(length(signal)/window_size);
 
     % Compute the spectrum for each window
-    spectrum = zeros(ceil(window_size), number_of_windows);
+    spectrum = zeros(window_size, number_of_windows);
     for i = 1:number_of_windows-1
         window = signal((i-1)*window_size+1:i*window_size);
         fft_window = fft(window);

@@ -25,7 +25,7 @@ Fs = 48000; % [Hz]
 
 % delta_f = 1/T =>
 T_min = 1/delta_f; % [s]
-T = T_min + 1/f0; % [s] adds a small margin to allow for truncating at the receiver
+T = T_min + 4/f0; % [s] adds a small margin to allow for truncating at the receiver
 
 % check if the isapprox() function is available
 try
@@ -85,14 +85,14 @@ final_signal = final_signal/max(abs(final_signal));
 
 
 if play_sound
-    player = audioplayer(final_signal, Fs, 24, 1); % 1 is the ID of the macbook speaker
+    player = audioplayer(final_signal, Fs, 24); 
     play(player);   
 else
     % add a delay before the start of the message to test 
     % the dectection of the start of the message in the receiver
     final_signal = [zeros(1, Delay_before_start), final_signal];
     audiowrite('step_4_output.wav', final_signal, Fs);
-    save("parameters.mat", "f0", "delta_f", "M", "T", "Fs", "number_of_chunks", "message_type",...
+    save("parameters.mat", "f0", "delta_f", "M", "T", "T_min", "Fs", "number_of_chunks", "message_type",...
                 "relative_delay_duration");
 end
 

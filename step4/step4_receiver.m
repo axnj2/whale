@@ -2,7 +2,7 @@ clc; clear; close all hidden;
 
 % choose between recording sound and loading from file
 record_sound = false;
-message_type = "text"; % "text" or "image"
+message_type = "image"; % "text" or "image"
 
 if record_sound
     % define the constants
@@ -11,7 +11,9 @@ if record_sound
     delta_f = 400; % [Hz]
     Fs = 48000; % [Hz]
     T_min = 1/delta_f;
-    T = T_min + 1/f0;
+    T = T_min + 4/f0;
+
+    relative_delay_duration = 0;
 
     %lengh of the message
     if message_type == "text"
@@ -94,11 +96,10 @@ end
 
 
 [start_of_message, incertitude_window_size] = find_start_of_message(recorded_message, f0, delta_f, M, T, Fs);
-start_of_message
-incertitude_window_size
+incertitude_window_size = 4 * incertitude_window_size 
 
 % validate assumption used in get_chunk and fsk_decode_1_chunk (in the loop below)
-if T ~= 1/delta_f + 1/f0 || T_min ~= 1/delta_f
+if T ~= 1/delta_f + 4/f0 || T_min ~= 1/delta_f
     error("T is not equal to 1/delta_f + 1/f0 = T_min + 1/f0");
 end
 
@@ -107,7 +108,7 @@ non_coherent = true;
 chunks_value = zeros(1, number_of_chunks);
 for i = 1:number_of_chunks
     chunks_value(i) = fsk_decode_1_chunk(get_chunk(recorded_message, i, start_of_message, T, Fs, incertitude_window_size, relative_delay_duration),...
-     f0, delta_f, M, 1/f0, Fs, non_coherent);
+     f0, delta_f, M, 1/delta_f, Fs, non_coherent);
 end
 
 bytes_of_message = zeros(1, number_of_chunks/2);
