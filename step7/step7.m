@@ -2,7 +2,7 @@ clear;
 addpath("../step4/");
 tic
 % --- noise parameters ---
-EbN0s = 1:1:8;
+EbN0s = 2:1:8;
 number_of_repetitions = 1000;
 % -------------------------
 
@@ -19,10 +19,10 @@ relative_delay_duration = 0;
 
 % message parameters, using a big parameter here alows us to use only 1 repetition as this is an ergodic process.
 % but it is not always the most computationally efficient way to do it.
-number_of_symbols = 1000;
+number_of_symbols = 200;
 % ---------------------------------------------------------------------------
 
-compute_coherent = false;
+compute_coherent = true;
 
 
 
@@ -74,9 +74,9 @@ end
 % test the effect of noise for each SNR
 
 % for each SNR
-bit_error_rates_non_coherent = zeros(1, length(EbN0s));
+symbol_error_rates_non_coherent = zeros(1, length(EbN0s));
 if compute_coherent
-    bit_error_rates_coherent = zeros(1, length(EbN0s));
+    symbol_error_rates_coherent = zeros(1, length(EbN0s));
 end
 
 display("intialization time : ")
@@ -104,9 +104,9 @@ parfor (k = 1:length(EbN0s), c)
             total_coherent_errors = total_coherent_errors + sum(decoded_message_coherent ~= chunk_values);
         end
     end
-    bit_error_rates_non_coherent(k) = total_non_coherent_errors/(number_of_repetitions*number_of_symbols);
+    symbol_error_rates_non_coherent(k) = total_non_coherent_errors/(number_of_repetitions*number_of_symbols);
     if compute_coherent
-        bit_error_rates_coherent(k) = total_coherent_errors/(number_of_repetitions*number_of_symbols);
+        symbol_error_rates_coherent(k) = total_coherent_errors/(number_of_repetitions*number_of_symbols);
     end
 end
 disp("simulation time : ")
@@ -114,22 +114,25 @@ toc
 
 
 % theoritical curves with ber = berawgn(EbNo,'fsk',M,coherence)
-bit_error_rates_non_coherent_theoritical = berawgn(EbN0s, 'fsk', M, 'noncoherent');
+[~, symbol_error_rates_non_coherent_theoritical] = berawgn(EbN0s, 'fsk', M, 'noncoherent');
 
 
 hold on
 figure
 if compute_coherent
-    semilogy(EbN0s, [bit_error_rates_non_coherent; bit_error_rates_coherent; bit_error_rates_non_coherent_theoritical], '-o')
+    semilogy(EbN0s, [symbol_error_rates_non_coherent; symbol_error_rates_coherent; symbol_error_rates_non_coherent_theoritical], '-o')
     legend("non-coherent decoding with random phase", "coherent decoding with random phase", "theoritical non-coherent decoding")
 else
-    semilogy(EbN0s, [bit_error_rates_non_coherent; bit_error_rates_non_coherent_theoritical], '-o')
+    semilogy(EbN0s, [symbol_error_rates_non_coherent; symbol_error_rates_non_coherent_theoritical], '-o')
     legend("non-coherent decoding with random phase", "theoritical non-coherent decoding")
 end
 title("Error rate as a function of the ratio Eb/N0")
 xlabel("Eb/N0 [dB]")
-ylabel("log10(Error rate)")
-ylim([10^-6, 10^-1])
-xlim([-4, 20])
+ylabel("Symbol error rate")
+
 pbaspect([1 1.5 1])
+ax = gca;
+ax.FontSize = 20;
+h = get(ax,'children');
+set(h, 'LineWidth',1.5)
 grid on
