@@ -1,18 +1,21 @@
-clc; clear; close all hidden;
+clc; clear; 
 
 
 % switch between playing sound and saving to file for testing
-play_sound = true;
+play_sound = false;
 
 message_type = "image"; % "text" or "image"
 
+image_height = 0;
+image_width = 0;
 if message_type == "text"
-    message = 'hello sound communication';
+    message = 'hello sound communication mlqsdfjriurej&1252383485°09°10KLQKDKù$s^dfdvhlxkwjcnwmlk,xc=:xc;v,izupaoijdfvkujhwjnôaqisfhfhmslqkjfipurebvmckx,ùpjezpoufsjn';
 elseif message_type == "image"
     raw_image = imread('image.jpg');
     image = format_image(raw_image);
-    image_height = size(image, 1)
-    image_width = size(image, 2)
+    image_height = size(image, 1);
+    image_width = size(image, 2);
+    figure
     imagesc(image);
     % convert the image to a message
     message = encode_image_to_uint8(image);
@@ -27,7 +30,7 @@ relative_delay_duration = 0;
 
 M = 16;
 f0 = 8000; % [Hz]
-delta_f = 200; % [Hz]
+delta_f = 400; % [Hz]
 Fs = 48000; % [Hz]
 
 % delta_f = 1/T =>
@@ -59,8 +62,6 @@ end
 if T < T_min - 1/f0
     error("T is too short to allow for truncating at the receiver");
 end
-
-
 
 
 % encode the message
@@ -100,4 +101,6 @@ end
 [spectral_power_density, w] = pwelch(final_signal);
 
 figure;
- plot(w/pi*Fs/2, 10*log10(spectral_power_density));
+plot(w/pi*Fs/2, 10*log10(spectral_power_density));
+xlabel('Frequency [Hz]');
+ylabel('Power/Frequency [dB/Hz]');

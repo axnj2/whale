@@ -97,10 +97,11 @@ end
 
 [start_of_message, incertitude_window_size] = find_start_of_message(recorded_message, f0, delta_f, M, T, Fs);
 start_of_message
-incertitude_window_size = 4 * incertitude_window_size ;
+incertitude_window_size = 4 * incertitude_window_size;
 
 % validate assumption used in get_chunk and fsk_decode_1_chunk (in the loop below)
-if T ~= 1/delta_f + 4/f0 || T_min ~= 1/delta_f
+% it's bad practice to use == with floating point numbers, but the isapprox() function was only introduced in R2024b
+if T ~= 1/delta_f + incertitude_window_size || T_min ~= 1/delta_f 
     error("T is not equal to 1/delta_f + 1/f0 = T_min + 1/f0");
 end
 
