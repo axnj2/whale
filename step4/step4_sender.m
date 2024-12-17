@@ -9,7 +9,7 @@ message_type = "image"; % "text" or "image"
 image_height = 0;
 image_width = 0;
 if message_type == "text"
-    message = 'hello sound communication mlqsdfjriurej&1252383485°09°10KLQKDKù$s^dfdvhlxkwjcnwmlk,xc=:xc;v,izupaoijdfvkujhwjnôaqisfhfhmslqkjfipurebvmckx,ùpjezpoufsjn';
+    message = 'hello sound communication';
 elseif message_type == "image"
     raw_image = imread('image.jpg');
     image = format_image(raw_image);
@@ -85,6 +85,7 @@ end
 final_signal = final_signal/max(abs(final_signal));
 
 message_duration = length(final_signal)/Fs
+bit_rate = length(message_decimal)*8/message_duration
 if play_sound
     player = audioplayer(final_signal, Fs, 24); 
     play(player);   
