@@ -35,7 +35,7 @@ Fs = 48000; % [Hz]
 
 % delta_f = 1/T =>
 T_min = 1/delta_f; % [s]
-T = T_min + 4/f0; % [s] adds a small margin to allow for truncating at the receiver
+T = T_min + 1/f0; % [s] adds a small margin to allow for truncating at the receiver
 
 % check if the isapprox() function is available
 try
@@ -64,21 +64,29 @@ if T < T_min - 1/f0
 end
 
 
+%check that the highest frequency is below the Nyquist frequency
+if f0 + (M-1)*delta_f > Fs/2
+    error("f0 + (M-1)*delta_f  = F_max > Fs/2");
+end
+
 % encode the message
 % transform the message into decimal (does not change anything if it is already in decimal)
 message_decimal = uint8(message);
-
-number_of_chunks = length(message_decimal)*2;
+chuncks_values = uint8_to_symbol_value(message_decimal, M);
+number_of_chunks = length(chuncks_values);
 
 % add preamble to the signal for 1 period at f0 
 % (used in the receiver to find the start of the message)
 [~, preamble] = fsk_gen_1_period(f0, delta_f, M, T, Fs, 0);
 final_signal = [preamble, zeros(1, round(T*Fs))];
 
+% make it longer to include a delay between each symbol if specified
+chunck_signal = zeros(1, round(T*Fs));
+
 previous_phase = 0;
-for i = 1:number_of_chunks/2
-    [byte_signal, previous_phase] = encode_byte(message_decimal(i), f0, delta_f, M, T, Fs, relative_delay_duration, previous_phase);
-    final_signal = [final_signal, byte_signal];
+for i = 1:number_of_chunks
+    [~, chunck_signal, previous_phase] = fsk_gen_1_period(f0, delta_f, M, T, Fs, chuncks_values(i), false, previous_phase);
+    final_signal = [final_signal, chunck_signal];
 end
 
 %normalize the signal

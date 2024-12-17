@@ -101,8 +101,8 @@ incertitude_window_size = 4 * incertitude_window_size;
 
 % validate assumption used in get_chunk and fsk_decode_1_chunk (in the loop below)
 % it's bad practice to use == with floating point numbers, but the isapprox() function was only introduced in R2024b
-if T ~= 1/delta_f + incertitude_window_size || T_min ~= 1/delta_f 
-    error("T is not equal to 1/delta_f + 1/f0 = T_min + 1/f0");
+if T ~= 1/delta_f + incertitude_window_size/Fs || T_min ~= 1/delta_f 
+    error("T is not equal to 1/delta_f + 4/f0 = T_min + 4/f0");
 end
 
 %decode 4 bites of the message :
@@ -113,15 +113,12 @@ for i = 1:number_of_chunks
      f0, delta_f, M, 1/delta_f, Fs, non_coherent);
 end
 
-bytes_of_message = zeros(1, number_of_chunks/2);
-for i = 1:number_of_chunks/2
-    bytes_of_message(i) = bitor(bitshift(chunks_value(2*i), 4), chunks_value(2*i-1));
-end
+bytes_of_message = symbol_value_to_uint8(chunks_value, M);
 
 %decode the message
 if message_type == "text"
     message = '';
-    for i = 1:number_of_chunks/2
+    for i = 1:length(bytes_of_message)
         message(i) = char(bytes_of_message(i));
     end
     disp(message);
