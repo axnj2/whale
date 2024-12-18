@@ -38,16 +38,16 @@ signal = signal/max(abs(signal));
 
 % --------- Emission et enregistrement du signal ----------
 player = audioplayer(repmat(signal, 1, 10), Fs, 24); 
-pause(2);
 play(player);
 
-recorder = audiorecorder(Fs, 24, 1); 
-record(recorder, T);
 
-pause(T+1); % pour être sûr que la mesure est finie
+recorder = audiorecorder(Fs, 24, 1); 
+record(recorder, T+0.5);
+
+pause(T+1.5); % pour être sûr que la mesure est finie
 
 x_recorded = [getaudiodata(recorder)];
-
+x_recorded = x_recorded(48000/2 +1 :end)
 Y_f = fft(x_recorded);
 % ---------------------------------------------------------
 
@@ -76,7 +76,7 @@ xlabel('t [s]');
 ylabel('y(t)'); % réponse impulsionnelle
 
 figure;
-plot(t, h_t);
+plot(t, abs(h_t));
 xlabel('t [s]');
 ylabel('h(t)'); % réponse impulsionnelle
 
