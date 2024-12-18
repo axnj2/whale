@@ -1,5 +1,4 @@
 function [t, signal, last_phase] = fsk_gen_1_period(f0, detla_f, M, T, Fs, number, use_random_phase, previous_phase)
-    % idée d'amélioration : utiliser un code gray pour pouvoir corriger les erreurs plus facilement
     arguments
         f0 double
         detla_f double
