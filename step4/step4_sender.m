@@ -35,7 +35,7 @@ Fs = 48000; % [Hz]
 
 % delta_f = 1/T =>
 T_min = 1/delta_f; % [s]
-T = T_min + 1/f0; % [s] adds a small margin to allow for truncating at the receiver
+T = T_min + 4/f0; % [s] adds a small margin to allow for truncating at the receiver
 
 % check if the isapprox() function is available
 try
