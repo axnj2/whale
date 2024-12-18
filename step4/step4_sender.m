@@ -29,8 +29,8 @@ relative_delay_duration = 0;
 
 Fs = 48000; % [Hz]
 M = 4;
-delta_f = Fs/7 % [Hz]
-f0 = delta_f/2 % [Hz]
+delta_f = Fs/7 %#ok<NOPTS> % [Hz]
+f0 = delta_f/2 %#ok<NOPTS> % [Hz]
 
 
 % Computing the maximum frequency with an integer number of samples 
@@ -122,7 +122,7 @@ if play_sound
 else
     % add a delay before the start of the message to test 
     % the dectection of the start of the message in the receiver
-    final_signal = [zeros(1, Delay_before_start), final_signal];
+    final_signal = [zeros(1, Delay_before_start), final_signal]; %#ok<*UNRCH>
     audiowrite('step_4_output.wav', final_signal, Fs);
     save("parameters.mat", "f0", "delta_f", "M", "T", "T_min", "Fs", "number_of_chunks", "message_type",...
                 "relative_delay_duration", "image_width", "image_height");
