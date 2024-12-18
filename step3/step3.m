@@ -47,7 +47,7 @@ record(recorder, T+0.5);
 pause(T+1.5); % pour être sûr que la mesure est finie
 
 x_recorded = [getaudiodata(recorder)];
-x_recorded = x_recorded(48000/2 +1 :end)
+x_recorded = x_recorded(48000/2 +1 :end);
 Y_f = fft(x_recorded);
 % ---------------------------------------------------------
 
@@ -92,7 +92,7 @@ function [ht] = h(Fs)
     end
     delay = 0.001; %s
 
-    alpha_r = 0.5;
+    alpha_r = 0.4;
     alpha_d = 0.9;
     d_m = 1; %m
     d_d = 0.15; %m

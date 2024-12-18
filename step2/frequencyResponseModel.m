@@ -1,6 +1,6 @@
 clc; clear all; close all hidden;
 
-alpha_r = 0.1;
+alpha_r = 0.4;
 alpha_d = 0.9;
 d_m = 1; %m
 d_d = 0.15; %m

@@ -19,7 +19,7 @@ function [ht] = h(Fs)
     delay = 0.001; % delay between transmission and reception in s
 
    
-    alpha_r = 0.1;
+    alpha_r = 0.4;
     alpha_d = 0.9;
     d_m = 1; %m
     d_d = 0.15; %m
