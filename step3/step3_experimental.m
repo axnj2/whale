@@ -37,8 +37,10 @@ signal = signal/max(abs(signal));
 
 
 % --------- Emission et enregistrement du signal ----------
-player = audioplayer(repmat(signal, 1, 10), Fs, 24); 
+player = audioplayer(repmat(signal, 1, 10), Fs, 24);
+pause(3);
 play(player);
+
 
 
 recorder = audiorecorder(Fs, 24, 1); 
@@ -47,7 +49,9 @@ record(recorder, T+0.5);
 pause(T+1.5); % pour être sûr que la mesure est finie
 
 x_recorded = [getaudiodata(recorder)];
+
 x_recorded = x_recorded(48000/2 +1 :end);
+
 Y_f = fft(x_recorded);
 % ---------------------------------------------------------
 
@@ -65,7 +69,7 @@ ylabel('|Y(f)| [dB]');
 figure;
 plot(Fs/Q*(-Q:(Q)-1), 20*log(abs(fftshift(H_f))));   
 xlabel('f [Hz]');
-ylabel('|H(f)| [dB]'); % réponse en fréquence 
+ylabel('|H(f)| [dB]'); 
 
 y_t = ifft(Y_f);
 h_t = ifft(H_f);
@@ -73,12 +77,12 @@ h_t = ifft(H_f);
 figure;
 plot(t, y_t);
 xlabel('t [s]');
-ylabel('y(t)'); % réponse impulsionnelle
+ylabel('y(t)'); 
 
 figure;
 plot(t, abs(h_t));
 xlabel('t [s]');
-ylabel('h(t)'); % réponse impulsionnelle
+ylabel('h(t)'); 
 
 
 
