@@ -1,8 +1,8 @@
-clc; clear; 
+clear; close all; clc;
 
 
 % switch between playing sound and saving to file for testing
-play_sound = false;
+play_sound = true;
 
 message_type = "image"; % "text" or "image"
 
@@ -22,20 +22,24 @@ elseif message_type == "image"
 end
 
 % define the constants
-Delay_before_start = 100; % [samples]
+Delay_before_start = 1000; % [samples]
 
 % delay between each chunk as a fraction of T
 relative_delay_duration = 0;
 
-
-M = 16;
-f0 = 8000; % [Hz]
-delta_f = 400; % [Hz]
 Fs = 48000; % [Hz]
+M = 4;
+delta_f = Fs/7 % [Hz]
+f0 = delta_f/2 % [Hz]
+
+
+% Computing the maximum frequency with an integer number of samples 
+% in the bandwith to use it as a preamble
+f_int_max = 1/(ceil(Fs/(f0+(M-1)*delta_f))/Fs); % computes the min number of samples corresponding to a frequency in the bandwith
 
 % delta_f = 1/T =>
 T_min = 1/delta_f; % [s]
-T = T_min + 4/f0; % [s] adds a small margin to allow for truncating at the receiver
+T = T_min + 4/f_int_max; % [s] adds a small margin to allow for truncating at the receiver
 
 % check if the isapprox() function is available
 try
@@ -69,6 +73,23 @@ if f0 + (M-1)*delta_f > Fs/2
     error("f0 + (M-1)*delta_f  = F_max > Fs/2");
 end
 
+% check that the highest frequency is below 18 kHz
+if f0 + (M-1)*delta_f > 18000
+    warning("f0 + (M-1)*delta_f  = F_max > 18000 Hz, might not be recorded by the microphone");
+end
+
+% check that T_min*Fs is an integer
+if ~isapprox(round(T_min*Fs, 7), round(T_min*Fs))
+    error("T_min*Fs is not an integer");
+end
+
+% check that T*Fs is an integer
+if ~isapprox(round(T*Fs, 7), round(T*Fs))
+    error("T*Fs is not an integer");
+end
+
+
+
 % encode the message
 % transform the message into decimal (does not change anything if it is already in decimal)
 message_decimal = uint8(message);
@@ -77,13 +98,13 @@ number_of_chunks = length(chuncks_values);
 
 % add preamble to the signal for 1 period at f0 
 % (used in the receiver to find the start of the message)
-[~, preamble] = fsk_gen_1_period(f0, delta_f, M, T, Fs, 0);
+[~, preamble] = fsk_gen_1_period(f_int_max, delta_f, M, T, Fs, 0);
 final_signal = [preamble, zeros(1, round(T*Fs))];
 
 % make it longer to include a delay between each symbol if specified
 chunck_signal = zeros(1, round(T*Fs));
 
-previous_phase = 0;
+previous_phase =pi/2;
 for i = 1:number_of_chunks
     [~, chunck_signal, previous_phase] = fsk_gen_1_period(f0, delta_f, M, T, Fs, chuncks_values(i), false, previous_phase);
     final_signal = [final_signal, chunck_signal];
@@ -92,8 +113,9 @@ end
 %normalize the signal
 final_signal = final_signal/max(abs(final_signal));
 
-message_duration = length(final_signal)/Fs
-bit_rate = length(message_decimal)*8/message_duration
+message_duration = length(final_signal)/Fs %#ok<NOPTS>
+bit_rate = log2(M)/T %#ok<NOPTS>
+
 if play_sound
     player = audioplayer(final_signal, Fs, 24); 
     play(player);   

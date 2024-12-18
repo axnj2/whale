@@ -60,9 +60,10 @@ function [t0_index, window_size] = find_start_of_message(recorded_message, f0, d
     end
 
     % find the start of the message
-    % the message starts with a f0 frequency for T seconds
-    window_time = 1/(f0);
-    window_size = floor(window_time*Fs);
+    % the message starts with a f0 frequency for T second
+    % f_int_max = 1/(ceil(Fs/(f0+(M-1)*delta_f))/Fs); % computes the min number of samples corresponding to a frequency in the bandwith
+    % window_time = 1/f_int_max;
+    window_size = ceil(Fs/(f0+(M-1)*delta_f));
 
     time_vector = (0:length(window_size)-1)/Fs;
     base_vector = exp(1i*2*pi*f0*time_vector);
@@ -76,12 +77,12 @@ function [t0_index, window_size] = find_start_of_message(recorded_message, f0, d
         f0_powers(i) = abs(projection);
         if i > 21
             if f0_powers(i) > 15*mean(f0_powers(i-21:i-1))
-                t0_index = (i-1)*window_size + window_size/2 ;
+                t0_index = (i-1)*window_size + floor(window_size/2) ;
                 break
             end
         else
             if f0_powers(i) > 1e-1 % might not work for recorded sound, has been tested with no issue.
-                t0_index = (i-1)*window_size + window_size/2 +2;
+                t0_index = (i-1)*window_size + floor(window_size/2) +2;
                 break
             end
         end
@@ -123,7 +124,13 @@ if message_type == "text"
     end
     disp(message);
 elseif message_type == "image"
-    received_image = decode_image_from_uint8(bytes_of_message, image_height, image_width);
+    try
+        received_image = decode_image_from_uint8(bytes_of_message, image_height, image_width);
+    catch err
+        disp(err.message);
+        bytes_of_message = bytes_of_message(1:end-1); % removes the added 0 from the conversion from symbol to uint8
+        received_image = decode_image_from_uint8(bytes_of_message, image_height, image_width);
+    end
     imagesc(received_image);
 
     %calculate error rate : 
