@@ -6,7 +6,7 @@ Fs = 48000; % fréquence d'échantillonnage
 Q = 4096; % nombre de fréquences échantillonées
 
 %Signal to noise ratio
-SNR = -55:4:-10; %dB
+SNR = -44:4:-9; %dB
 threshold_values = 0:0.01:2; % Define a range of threshold values
 num_realization = 1000; % number of realizations
 
@@ -125,14 +125,17 @@ for j_SNR = 1:length(SNR)
     end
 end
 toc
+colors = jet(length(SNR));
 
 % Plot results
 figure;
 hold on;
 for j_SNR = 1:length(SNR)
-    plot(false_alarm_rates(j_SNR, :), missed_detection_rates(j_SNR, :), "DisplayName", sprintf("SNR = %d dB", SNR(j_SNR)));
+    plot(false_alarm_rates(j_SNR, :), missed_detection_rates(j_SNR, :), 'Color', colors(j_SNR, :), 'LineWidth', 2, 'DisplayName', sprintf('SNR = %d dB', SNR(j_SNR)));
 end
-legend;
-xlabel('False Alarm Rate');
-ylabel('Missed Detection Rate');
-title('ROC Curve');
+xlabel('False Alarm Rate', 'FontSize', 17);
+ylabel('Missed Detection Rate', 'FontSize', 17);
+title('ROC Curve', 'FontSize', 19);
+set(gca, 'FontSize', 15); % Set font size for axes
+legend show;
+
