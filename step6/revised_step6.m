@@ -6,7 +6,7 @@ Fs = 48000; % fréquence d'échantillonnage
 Q = 4096; % nombre de fréquences échantillonées
 
 %Signal to noise ratio
-SNR = -40:2:-15; %dB
+SNR = -55:4:-10; %dB
 threshold_values = 0:0.01:2; % Define a range of threshold values
 num_realization = 1000; % number of realizations
 
@@ -18,15 +18,15 @@ function [ht] = h(Fs)
     end
     delay = 0.001; % delay between transmission and reception in s
 
-    alpha_r = 0.4;
-    alpha_d = 0.5;
-    d_m = 2; %m
-    d_d = 0.05; %m
+   
+    alpha_r = 0.1;
+    alpha_d = 0.9;
+    d_m = 1; %m
+    d_d = 0.15; %m
     v = 340; %m/s
 
-    tau_r = 2*d_m/v;
     tau_d = d_d/v;
-
+    tau_r = tau_d + 2*d_m/v;
     %time vector where 0.001 is a safety margin
     t = 0:1/Fs:(delay + max(tau_d, tau_r) + 0.001);
 
@@ -91,7 +91,7 @@ missed_detection_rates = zeros(length(SNR), length(threshold_values));
 base_noise = randn(2 * Q, num_realization);
 
 tic
-parfor j_SNR = 1:length(SNR)
+for j_SNR = 1:length(SNR)
     P_noise = P_signal / (10^(SNR(j_SNR) / 10));
     noise = base_noise * sqrt(P_noise);
     % each column is a different realization of the noised signal
