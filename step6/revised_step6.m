@@ -22,7 +22,7 @@ function [ht] = h(Fs)
     alpha_r = 0.1;
     alpha_d = 0.9;
     d_m = 1; %m
-    d_d = 0.15; %m
+    d_d = 0; %m
     v = 340; %m/s
 
     tau_d = d_d/v;

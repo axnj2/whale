@@ -27,6 +27,8 @@ x_recorded = [getaudiodata(recorder)];
 fft_results = fftshift(fft(x_recorded));
 plot(Fs/(Fs*T)*(-Fs*T/2:Fs*T/2-1), 20*log(abs(fft_results)));
 xlim([fk(0)-10, fk(kmax)+10])
+xlabel('f [Hz]','FontSize',17);
+ylabel('|H(f)| [dB]','FontSize',17);
 figure;
 plot(Fs/(Fs*T)*(-Fs*T/2:Fs*T/2-1), (abs(fft_results))) % only works for T=1s
 xlim([fk(0)-10, fk(kmax)+10]);
