@@ -3,7 +3,7 @@ addpath("../step4/");
 tic
 % --- noise parameters ---
 EbN0s = 2:1:8;
-number_of_repetitions = 1000;
+number_of_repetitions = 500;
 % -------------------------
 
 % ---------------------- define the constants -------------------------------
@@ -117,10 +117,10 @@ toc
 [~, symbol_error_rates_non_coherent_theoritical] = berawgn(EbN0s, 'fsk', M, 'noncoherent');
 
 
-hold on
+
 figure
 if compute_coherent
-    semilogy(EbN0s, [symbol_error_rates_non_coherent; symbol_error_rates_coherent; symbol_error_rates_non_coherent_theoritical], '-o')
+    semilogy(EbN0s, [symbol_error_rates_non_coherent;  symbol_error_rates_non_coherent_theoritical; symbol_error_rates_coherent], '-o')
     legend("non-coherent decoding with random phase", "coherent decoding with random phase", "theoritical non-coherent decoding")
 else
     semilogy(EbN0s, [symbol_error_rates_non_coherent; symbol_error_rates_non_coherent_theoritical], '-o')
@@ -131,6 +131,7 @@ xlabel("Eb/N0 [dB]")
 ylabel("Symbol error rate")
 
 pbaspect([1 1.5 1])
+
 ax = gca;
 ax.FontSize = 20;
 h = get(ax,'children');
