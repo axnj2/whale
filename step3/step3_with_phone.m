@@ -62,6 +62,8 @@ figure;
 % compensation de la phase
 fft_results = [raw_fft_results(1:Q).*phase'; raw_fft_results(Q+1:2*Q).*phase(end:-1:1)'];
 plot(Fs/Q*(-Q:(Q)-1), abs(fftshift(fft_results)));
+xlabel('f [Hz]','FontSize', 17);
+ylabel('|Y(f)|','fontsize', 17);
 
 
 reponse_impulsionnelle = ifft(fft_results);

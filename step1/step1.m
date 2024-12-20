@@ -24,12 +24,14 @@ end
 % fft avant de l'émettre et enregistrer
 figure;
 plot(Fs/samples*(-samples/2:samples/2-1), abs(fftshift(fft(x))))
-xlabel('f [Hz]');
-ylabel('|X(f)|');
+xlabel('f [Hz]', 'FontSize', 17);
+ylabel('|X(f)|', 'FontSize', 17);
+title('FFT du signal avant émission', 'FontSize', 17);
 figure;
 plot(t, x);
-xlabel('t [s]');
-ylabel('x(t)');
+xlabel('t [s]', 'FontSize', 17);
+ylabel('x(t)', 'FontSize', 17);
+title('Signal avant émission', 'FontSize', 17);
 
 
 player = audioplayer(repmat(x, 1, 50), Fs);
@@ -43,13 +45,19 @@ pause(Tf+1);
 x_recorded = [getaudiodata(recorder)];
 samples_recorded = length(x_recorded);
 
-%plot(t, x_recorded');
+plot(t, x_recorded');
+xlabel('t [s]', 'FontSize', 17);
+ylabel('x(t)', 'FontSize', 17);
+title('Signal reçu', 'FontSize', 17);
 
 fft_results = fft(x_recorded);
 centered_fft_results = fftshift(fft_results); 
 
 figure;
 plot(Fs/samples_recorded*(-samples_recorded/2:samples_recorded/2-1), abs(centered_fft_results));
+xlabel('f [Hz]', 'FontSize', 17);
+ylabel('|X(f)|', 'FontSize', 17);
+title('FFT du signal reçu', 'FontSize', 17);
 
 
 
@@ -62,3 +70,6 @@ end
 
 figure;
 plot(Fs/samples*(-samples/2:samples/2-1), abs(fftshift(fft(x))))
+xlabel('f [Hz]', 'FontSize', 17);
+ylabel('|X(f)|', 'FontSize', 17);
+title('FFT du signal avant émission', 'FontSize', 17);

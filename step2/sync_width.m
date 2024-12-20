@@ -13,20 +13,25 @@ kmax = 1000;
 
 figure;
 plot(t, signalNormalPhase);
-xlabel('t [s]');
-ylabel('x(t)');
+xlabel('t [s]', 'FontSize', 17);
+ylabel('x(t)', 'FontSize', 17);
+title('Signal sans phase aléatoire', 'FontSize', 17);
 
 figure;
 plot(t, signalRandomPhase);
-xlabel('t [s]');
-ylabel('x(t)'); 
+xlabel('t [s]', 'FontSize', 17);
+ylabel('x(t)', 'FontSize', 17); 
+title('Signal avec phase aléatoire', 'FontSize', 17);
 
 
 figure;
 plot(Fs/(Fs*T)*(-Fs*T/2:Fs*T/2-1), abs(fftshift(fft(signalNormalPhase))));
-xlabel('f [Hz]');
-ylabel('|X(f)|');
+xlabel('f [Hz]', 'FontSize', 17);
+ylabel('|X(f)|', 'FontSize', 17);
+title('FFT du signal sans phase aléatoire', 'FontSize', 17);
+
 figure
 plot(Fs/(Fs*T)*(-Fs*T/2:Fs*T/2-1), abs(fftshift(fft(signalRandomPhase))));
-xlabel('f [Hz]');
-ylabel('|X(f)|');
+xlabel('f [Hz]', 'FontSize', 17);
+ylabel('|X(f)|', 'FontSize', 17);
+title('FFT du signal avec phase aléatoire', 'FontSize', 17);

@@ -35,6 +35,7 @@ signal = signal/max(abs(signal));
 plot(t, signal);
 xlabel('t [s]','FontSize', 17);
 ylabel('x(t)','fontsize', 17);
+title('Signal x(t) à envoyer', 'fontsize', 17);
 
 %pause(3) % pour avoir le temps de s'éloinger le l'ordinateur pour ne pas perturber la mesure
 
@@ -68,11 +69,13 @@ figure;
 plot(Fs/Q*(-Q:(Q)-1), 20*log(abs(fftshift(compensated_Y_f))));
 xlabel('f [Hz]','FontSize', 17);
 ylabel('|Y(f)| [dB]','FontSize', 17); 
+title('FFT du signal reçu', 'fontsize', 17);
 
 figure;
 plot(Fs/Q*(-Q:(Q)-1), 20*log(abs(fftshift(H_f))));   
 xlabel('f [Hz]','FontSize', 17);
 ylabel('|H(f)| [dB]','FontSize', 17); 
+title('module de la réponse en fréquence', 'fontsize', 17);
 
 y_t = ifft(Y_f);
 h_t = ifft(H_f);
@@ -81,11 +84,13 @@ figure;
 plot(t, y_t);
 xlabel('t [s]','FontSize', 17);
 ylabel('y(t)','FontSize', 17); 
+title('Signal reçu', 'fontsize', 17);
 
 figure;
 plot(t, abs(h_t));
 xlabel('t [s]','FontSize', 17);
 ylabel('h(t)','FontSize', 17); 
+title('Réponse impulsionnelle', 'fontsize', 17);
 
 
 

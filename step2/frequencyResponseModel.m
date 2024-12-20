@@ -18,6 +18,7 @@ plot(f, 20*log(abs(transfertFunctionNorm(f))));
 
 xlabel('f [Hz]', 'FontSize', 17);
 ylabel('|H(f)| [dB]', 'FontSize', 17);
+title('module de la réponse en fréquence théorique', 'FontSize', 17);
 
 
 

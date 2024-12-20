@@ -29,11 +29,13 @@ plot(Fs/(Fs*T)*(-Fs*T/2:Fs*T/2-1), 20*log(abs(fft_results)));
 xlim([fk(0)-10, fk(kmax)+10])
 xlabel('f [Hz]','FontSize',17);
 ylabel('|H(f)| [dB]','FontSize',17);
+title('FFT du signal enregistré en dB','FontSize',17);
+
+
 figure;
 plot(Fs/(Fs*T)*(-Fs*T/2:Fs*T/2-1), (abs(fft_results))) % only works for T=1s
 xlim([fk(0)-10, fk(kmax)+10]);
-
-figure
-reverse_fft_results = ifft(fft_results);
-plot(reverse_fft_results);
+xlabel('f [Hz]','FontSize',17);
+ylabel('|H(f)|','FontSize',17);
+title('FFT du signal enregistré','FontSize',17);
 
