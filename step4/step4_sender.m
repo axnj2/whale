@@ -2,7 +2,7 @@ clear; close all; clc;
 
 
 % switch between playing sound and saving to file for testing
-play_sound = true;
+play_sound = false;
 
 message_type = "image"; % "text" or "image"
 
@@ -39,7 +39,7 @@ f_int_max = 1/(ceil(Fs/(f0+(M-1)*delta_f))/Fs); % computes the min number of sam
 
 % delta_f = 1/T =>
 T_min = 1/delta_f; % [s]
-T = T_min + 4/f_int_max; % [s] adds a small margin to allow for truncating at the receiver
+ % [s] adds a small margin to allow for truncating at the receiver
 
 % check if the isapprox() function is available
 try

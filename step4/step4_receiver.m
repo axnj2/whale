@@ -4,14 +4,15 @@ clc; clear; close all hidden;
 record_sound = false;
 message_type = "image"; % "text" or "image"
 
-if record_sound
+if record_sound % not used when loading from file
     % define the constants
-    M = 16;
-    f0 = 8000; % [Hz]
-    delta_f = 200; % [Hz]
     Fs = 48000; % [Hz]
+    M = 4;
+    delta_f = Fs/7 %#ok<NOPTS> % [Hz]
+    f0 = delta_f/2 %#ok<NOPTS> % [Hz]
     T_min = 1/delta_f;
-    T = T_min + 4/f0;
+    f_int_max = 1/(ceil(Fs/(f0+(M-1)*delta_f))/Fs);
+    T = T_min + 4/f_int_max;
 
     relative_delay_duration = 0;
 
@@ -132,10 +133,13 @@ elseif message_type == "image"
         received_image = decode_image_from_uint8(bytes_of_message, image_height, image_width);
     end
     imagesc(received_image);
-
+    colormap("gray")
+    hold on
     %calculate error rate : 
     perfect_image = format_image(imread('image.jpg'));
     error_rate = sum(received_image ~= perfect_image, 'all')/(size(received_image,1)*size(received_image,2))
+    [errorsx, errorsy] = find(received_image ~= perfect_image);
+    plot(errorsy, errorsx, 'r.', 'MarkerSize', 5);
 else
     error("message_type not supported or not defined");
 end
