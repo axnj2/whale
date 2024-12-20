@@ -19,6 +19,7 @@ elseif message_type == "image"
     imagesc(image);
     % convert the image to a message
     message = encode_image_to_uint8(image);
+    title('Original image');
 end
 
 % define the constants
@@ -39,7 +40,7 @@ f_int_max = 1/(ceil(Fs/(f0+(M-1)*delta_f))/Fs); % computes the min number of sam
 
 % delta_f = 1/T =>
 T_min = 1/delta_f; % [s]
- % [s] adds a small margin to allow for truncating at the receiver
+T = T_min + 4/f_int_max; % [s] adds a small margin to allow for truncating at the receiver
 
 % check if the isapprox() function is available
 try
@@ -135,3 +136,4 @@ figure;
 plot(w/pi*Fs/2, 10*log10(spectral_power_density));
 xlabel('Frequency [Hz]');
 ylabel('Power/Frequency [dB/Hz]');
+title('Spectral power density of the signal');

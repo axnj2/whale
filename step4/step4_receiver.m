@@ -140,6 +140,8 @@ elseif message_type == "image"
     error_rate = sum(received_image ~= perfect_image, 'all')/(size(received_image,1)*size(received_image,2))
     [errorsx, errorsy] = find(received_image ~= perfect_image);
     plot(errorsy, errorsx, 'r.', 'MarkerSize', 5);
+
+    title("received image (errors in red)");
 else
     error("message_type not supported or not defined");
 end
