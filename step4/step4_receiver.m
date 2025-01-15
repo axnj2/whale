@@ -1,5 +1,9 @@
 clc; clear; close all hidden;
 
+
+% D'ABORD RUN LE FICHIER step4_sender.m
+
+
 % choose between recording sound and loading from file
 record_sound = false;
 message_type = "image"; % "text" or "image"

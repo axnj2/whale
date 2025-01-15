@@ -1,5 +1,14 @@
-clear; close all;
+clc; clear all; close all;
 addpath("../")
+
+%parametres
+Fs = 48000; % fréquence d'échantillonnage
+Q = 4096; % nombre de fréquences échantillonées
+
+%Signal to noise ratio
+SNR = -44:4:-9; %dB
+threshold_values = 0:0.01:2; % Define a range of threshold values
+num_realization = 1000; % number of realizations
 
 function [ht] = h(Fs)
     % h : impulse response of the system
@@ -7,35 +16,22 @@ function [ht] = h(Fs)
     arguments
         Fs double  % sample rate
     end
-    delay = 0.001; %s
+    delay = 0.001; % delay between transmission and reception in s
 
-    alpha_r = 0.4;
-    alpha_d = 0.5;
-    d_m = 2; %m
-    d_d = 0.05; %m
+   
+    alpha_r = 0.1;
+    alpha_d = 0.9;
+    d_m = 1; %m
+    d_d = 0; %m
     v = 340; %m/s
 
-    tau_r = 2*d_m/v;
     tau_d = d_d/v;
-
+    tau_r = tau_d + 2*d_m/v;
+    %time vector where 0.001 is a safety margin
     t = 0:1/Fs:(delay + max(tau_d, tau_r) + 0.001);
 
     ht = alpha_r*rectangularPulse((t - tau_r - delay)*Fs ) + alpha_d*rectangularPulse((t - tau_d - delay )*Fs);
 end
-
-% Paramètres
-SNR = -20; % signal to noise ratio [dB]
-bias = 0.5;
-% grille de fréquences
-% on choisit le temps d'enregistrement par rapport au nombre de fréquences échantillonées
-Fs = 48000; % fréquence d'échantillonnage
-Q = 4096; % nombre de fréquences échantillonées
-
-% statistical analysis
-num_realisations = 1;
-bias_samples = 0.1:0.01:1;
-SNR_samples = -20:5:20;
-
 
 
 function [signal_conv_simu, random_phase] = simu_OFDM_radar_send_receive_noiseless(Fs, Q)
@@ -64,102 +60,82 @@ function [signal_conv_simu, random_phase] = simu_OFDM_radar_send_receive_noisele
 
     % convolute signal with h(t)
     signal_conv_simu = conv(transpose(signal), h(Fs), 'same');
+    signal_conv_simu = signal_conv_simu/max(abs(signal_conv_simu));
 end
 
 
-function [noised_signal]= add_noise(signal, SNR, Q)
-    P_signal = sum(signal.^2)/length(signal);
-
-    % add noize
-    % SNR = 10 log_10(P_signal/P_noise) => P_noise = P_signal/10^(SNR/10)
-    signal = signal + sqrt(P_signal/(10^(SNR/10)))*randn(1, 2*Q); % add a gaussian noise of mean 0 and standard deviation sqrt(P_signal/(10^(SNR/10)))
-    %P_signal
-    %sqrt(P_signal/(10^(SNR/10)))
-    noised_signal = signal/max(abs(signal));
-end
 
 function [reponse_impulsionnelle_simu] = calculate_impulse_response(received_OFDM_signal, Q, random_phase)
     % fft of the convoluted signal
-    fft_signal_conv_simu = fft(received_OFDM_signal);
+    fft_signal_conv_simu = fft(received_OFDM_signal); % treats each column as one signal
 
     % compensation de la phase
-    fft_signal_conv_phase_comp_simu = [fft_signal_conv_simu(1:Q).*random_phase'; fft_signal_conv_simu(Q+1:2*Q).*random_phase(end:-1:1)'];
-    
+    fft_signal_conv_phase_comp_simu = [fft_signal_conv_simu(1:Q,:).*random_phase'; fft_signal_conv_simu(Q+1:2*Q, :).*random_phase(end:-1:1)'];
     reponse_impulsionnelle_simu = ifft(fft_signal_conv_phase_comp_simu);
 end
 
-
-function [hits_indices] = detect_hits(reponse_impulsionnelle_simu, numRefCells, numGapCells, bias)
-    [hits, ~] = CFAR(abs(reponse_impulsionnelle_simu), numRefCells, numGapCells, bias);
-
-    hits_indices = find(hits);
-
-    % remove consecutive hits
-    keep_indices = ones(size(hits_indices), "logical");
-    for k = 1:length(hits_indices)
-        if find(hits_indices(k)+1==hits_indices)
-            keep_indices(k) = false;
-        elseif find(hits_indices(k)+2==hits_indices)
-            keep_indices(k) = false;
-        end 
-    end
-    hits_indices = hits_indices(keep_indices);
-
-end
-
-
-% real hits
-real_hits_indices = [284, 7918, 7920];
-
-Results_table = zeros(length(SNR_samples), length(bias_samples), 2);
-
-
-% static simulation : 
+%received signal
 [noiseless_received_signal, random_phase] = simu_OFDM_radar_send_receive_noiseless(Fs, Q);
+P_signal = sum(noiseless_received_signal.^2) / length(noiseless_received_signal);
+
+%find the real hits
+[noiseless_impulse_response] = calculate_impulse_response(noiseless_received_signal,Q,random_phase);
+real_hits_indices = find(abs(noiseless_impulse_response).^2 > 4);
+
+%threshold
+false_alarm_rates = zeros(length(SNR), length(threshold_values));
+missed_detection_rates = zeros(length(SNR), length(threshold_values));
 
 
+% Noise implementation (outside the loop) 
+base_noise = randn(2 * Q, num_realization);
 
 tic
-for i_SNR = 1:length(SNR_samples)
-    % add noise FIXME: change the noise each realisation
-    [received_OFDM_signal] = add_noise(noiseless_received_signal, SNR_samples(i_SNR), Q);
-    % calculate impulse response
-    reponse_impulsionnelle_simu = calculate_impulse_response(received_OFDM_signal, Q, random_phase);
-    for i_bias = 1:length(bias_samples)
-        false_alarms_rates = zeros(1,num_realisations);
-        missed_dectections_rates = zeros(1,num_realisations);
-        for i = 1:num_realisations
-            [hits_indices] = detect_hits(reponse_impulsionnelle_simu, 25, 5, bias_samples(i_bias));
-        
-            acc_detect = find(hits_indices==real_hits_indices(1) | hits_indices==real_hits_indices(2) | hits_indices==real_hits_indices(3));
-            num_acc_detect = length(acc_detect);
-            number_missed_detect = 2-num_acc_detect;
-            missed_detection_rate = number_missed_detect/2;
+for j_SNR = 1:length(SNR)
+    P_noise = P_signal / (10^(SNR(j_SNR) / 10));
+    noise = base_noise * sqrt(P_noise);
+    % each column is a different realization of the noised signal
+    noised_received_signal = noise + noiseless_received_signal; 
+    noised_received_signal = noised_received_signal / max(max(abs(noised_received_signal)));
 
-            false_alarms = hits_indices(not(hits_indices==real_hits_indices(1) | hits_indices==real_hits_indices(2)| hits_indices==real_hits_indices(3)));
-            false_alarm_rate = length(false_alarms)/(2*Q); % alarm rate per sample
+    [noised_impulse_response] = calculate_impulse_response(noised_received_signal, Q, random_phase);
 
-            false_alarms_rates(i) = false_alarm_rate;
-            missed_dectections_rates(i) = missed_detection_rate;
+    for i_thres = 1:length(threshold_values)
+        threshold_value = threshold_values(i_thres);
+        P_threshold = threshold_value^2;
+
+        % Hit confirmation
+        % returns the the row indices of the hits
+        hits = abs(noised_impulse_response).^2 > P_threshold;
+        [hits_indices, ~] = find(hits);
+
+        % False alarm
+        false_alarm_number = nnz(~ismember(hits_indices, real_hits_indices));
+        false_alarm_rates(j_SNR, i_thres) = false_alarm_number / (2 * Q * num_realization);
+
+
+        % Missed detection
+        missed_detection_number = 0;
+        for column_index = 1:num_realization
+            hits_indices = find(hits(:, column_index));
+            missed_detection_number = missed_detection_number  + nnz(~ismember(real_hits_indices, hits_indices));
         end
-        Results_table(i_SNR, i_bias, 1) = mean(false_alarms_rates);
-        Results_table(i_SNR, i_bias, 2) = mean(missed_dectections_rates);
+
+        missed_detection_rates(j_SNR, i_thres) = missed_detection_number / (2 * Q * num_realization);
     end
 end
 toc
+colors = jet(length(SNR));
 
-figure
-hold on
-for i = 1:length(SNR_samples)
-    plot(  Results_table(i,:,2), Results_table(i, :, 1),  'DisplayName', sprintf("SNR = %d dB", SNR_samples(i)))
+% Plot results
+figure;
+hold on;
+for j_SNR = 1:length(SNR)
+    plot(false_alarm_rates(j_SNR, :), missed_detection_rates(j_SNR, :), 'Color', colors(j_SNR, :), 'LineWidth', 2, 'DisplayName', sprintf('SNR = %d dB', SNR(j_SNR)));
 end
-xlabel("Missed detection rate")
-ylabel("False alarm rate")
+xlabel('False Alarm Rate', 'FontSize', 17);
+ylabel('Missed Detection Rate', 'FontSize', 17);
+title('ROC Curve', 'FontSize', 19);
+set(gca, 'FontSize', 15); % Set font size for axes
+legend show;
 
-%{
- plot
-figure
-plot(t, abs(reponse_impulsionnelle_simu), t, threshold)
-hold on
-scatter(t, hits, "filled", "red")
-%}
